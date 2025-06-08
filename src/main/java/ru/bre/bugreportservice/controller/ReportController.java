@@ -3,7 +3,6 @@ package ru.bre.bugreportservice.controller;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,7 +11,6 @@ import ru.bre.bugreportservice.dto.ReportDto;
 import ru.bre.bugreportservice.service.ReportService;
 
 @RestController
-@CrossOrigin
 public class ReportController {
 
     private final ReportService reportService;
