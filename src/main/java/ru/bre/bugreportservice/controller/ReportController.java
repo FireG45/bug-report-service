@@ -12,7 +12,7 @@ import ru.bre.bugreportservice.dto.ReportDto;
 import ru.bre.bugreportservice.service.ReportService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin
 public class ReportController {
 
     private final ReportService reportService;
