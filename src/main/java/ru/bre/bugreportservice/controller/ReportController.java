@@ -12,7 +12,7 @@ import ru.bre.bugreportservice.dto.ReportDto;
 import ru.bre.bugreportservice.service.ReportService;
 
 @RestController
-@CrossOrigin("mrak-bre.ru")
+@CrossOrigin
 public class ReportController {
 
     private final ReportService reportService;
