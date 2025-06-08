@@ -31,8 +31,8 @@ public class ReportController {
             @RequestParam("title") String title,
             @RequestParam("text") String text,
             @RequestParam("imageFile") MultipartFile imageFile,
-            @RequestParam("logFile") MultipartFile logFile,
-            @RequestParam("secret") String secret
+            @RequestParam(value = "logFile", required = false) MultipartFile logFile,
+            @RequestParam(value = "secret", required = false) String secret
     ) {
         if (!Objects.equals(secret, secretRef)) {
             return ResponseEntity.badRequest().body("ERR!");
