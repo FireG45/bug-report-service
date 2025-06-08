@@ -20,7 +20,7 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    @PostMapping("/report")
+    @PostMapping("/report-send")
     public ResponseEntity<String> report(
             @RequestParam("title") String title,
             @RequestParam("text") String text,
