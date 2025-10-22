@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: bug-report-service
+  mail:
+    protocol: smtps
+    host: smtp.yandex.ru
+    port: 465
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+  servlet:
+    multipart:
+      location: ${java.io.tmpdir}
+      max-file-size: 50MB
+
+mail:
+  from: ${EMAIL_USERNAME}@yandex.ru
+
+kafka:
+  config:
+    bootstrap:
+      servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+    security:
+      protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
+
+    sasl:
+      mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+
+    login:
+      module: ${KAFKA_LOGIN_MODULE:org.apache.kafka.common.security.plain.PlainLoginModule}
+
+    username: ${KAFKA_USERNAME}
+    password: ${KAFKA_PASSWORD}
+
+  report:
+    topic: ${KAFKA_REPORT_TOPIC:bre.report.message}

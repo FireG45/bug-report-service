@@ -1,6 +1,57 @@
 version: "3.9"
+
 services:
-  server:
-    build: .
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
+
+  report-service:
+    build: ./report-service
+    container_name: report-service
+    depends_on:
+      - kafka
     ports:
       - "8080:8080"
+    environment:
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      EMAIL_USERNAME: ${EMAIL_USERNAME}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9093
+      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_SASL_MECHANISM: PLAIN
+      KAFKA_LOGIN_MODULE: org.apache.kafka.common.security.plain.PlainLoginModule
+      KAFKA_USERNAME: user
+      KAFKA_PASSWORD: pass
+      KAFKA_REPORT_TOPIC: bre.report.message
