@@ -38,11 +38,33 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server --console-address ":9001" /data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - minio_data:/data
+    restart: on-failure
+
   report-service:
     build: ./report-service
     container_name: report-service
     depends_on:
-      - kafka
+      minio:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     ports:
       - "8080:8080"
     environment:
@@ -55,3 +77,12 @@ services:
       KAFKA_USERNAME: user
       KAFKA_PASSWORD: pass
       KAFKA_REPORT_TOPIC: bre.report.message
+
+      MINIO_URL: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_ACCESS_SECRET: minioadmin
+      MINIO_BUCKET_SCREENSHOT: screenshots
+      MINIO_BUCKET_LOG: logs
+
+volumes:
+  minio_data:

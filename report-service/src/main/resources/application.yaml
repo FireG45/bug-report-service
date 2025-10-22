@@ -5,32 +5,41 @@ spring:
     protocol: smtps
     host: smtp.yandex.ru
     port: 465
-    username: ${EMAIL_USERNAME}
-    password: ${EMAIL_PASSWORD}
+    username: ${EMAIL_USERNAME:brereport}
+    password: ${EMAIL_PASSWORD:qhghycgibazjzomh}
   servlet:
     multipart:
       location: ${java.io.tmpdir}
       max-file-size: 50MB
+      max-request-size: 50MB
 
 mail:
-  from: ${EMAIL_USERNAME}@yandex.ru
+  from: ${EMAIL_USERNAME:brereport}@yandex.ru
 
 kafka:
   config:
     bootstrap:
       servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-
     security:
-      protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
-
+      protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
     sasl:
       mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
-
     login:
       module: ${KAFKA_LOGIN_MODULE:org.apache.kafka.common.security.plain.PlainLoginModule}
 
-    username: ${KAFKA_USERNAME}
-    password: ${KAFKA_PASSWORD}
+    username: ${KAFKA_USERNAME:user}
+    password: ${KAFKA_PASSWORD:pass}
 
   report:
     topic: ${KAFKA_REPORT_TOPIC:bre.report.message}
+  feedback:
+    topic: ${KAFKA_FEEDBACK_TOPIC:bre.feedback.message}
+
+minio:
+  url: ${MINIO_URL:http://localhost:9000}
+  access:
+    key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret: ${MINIO_ACCESS_SECRET:minioadmin}
+  bucket:
+    screenshot: ${MINIO_BUCKET_SCREENSHOT:screenshots}
+    log: ${MINIO_BUCKET_LOG:logs}

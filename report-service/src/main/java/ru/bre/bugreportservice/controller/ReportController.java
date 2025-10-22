@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import ru.bre.bugreportservice.dto.FeedbackDto;
-import ru.bre.bugreportservice.dto.BugReportDto;
+import ru.bre.bugreportservice.dto.ReportEntity;
 import ru.bre.bugreportservice.service.ReportServiceFallbackHandler;
 
 import java.time.Duration;
@@ -39,8 +38,8 @@ public class ReportController {
             @RequestParam(value = "logFile", required = false) MultipartFile logFile
     ) {
         try {
-            reportServiceHandler.handle(new BugReportDto(title, text, imageFile, logFile));
             if (bucket.tryConsume(1)) {
+                reportServiceHandler.handle(new ReportEntity(title, text, imageFile, logFile));
                 return ResponseEntity.ok("OK!");
             }
 
@@ -56,8 +55,8 @@ public class ReportController {
             @RequestParam("text") String text
     ) {
         try {
-            reportServiceHandler.handle(new FeedbackDto(title, text));
             if (bucket.tryConsume(1)) {
+                reportServiceHandler.handle(new ReportEntity(title, text));
                 return ResponseEntity.ok("OK!");
             }
 
