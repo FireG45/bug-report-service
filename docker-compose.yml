@@ -57,6 +57,24 @@ services:
       - minio_data:/data
     restart: on-failure
 
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: storage
+      POSTGRES_USER: storage
+      POSTGRES_PASSWORD: storage
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U storage -d storage"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   report-service:
     build: ./report-service
     container_name: report-service
@@ -77,6 +95,7 @@ services:
       KAFKA_USERNAME: user
       KAFKA_PASSWORD: pass
       KAFKA_REPORT_TOPIC: bre.report.message
+      KAFKA_FEEDBACK_TOPIC: bre.feedback.message
 
       MINIO_URL: http://minio:9000
       MINIO_ACCESS_KEY: minioadmin
@@ -84,5 +103,34 @@ services:
       MINIO_BUCKET_SCREENSHOT: screenshots
       MINIO_BUCKET_LOG: logs
 
+  storage-service:
+    build: ./storage-service
+    container_name: storage-service
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_APPLICATION_NAME: storage-service
+
+      # Kafka config
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9093
+      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_SASL_MECHANISM: PLAIN
+      KAFKA_LOGIN_MODULE: org.apache.kafka.common.security.plain.PlainLoginModule
+      KAFKA_USERNAME: user
+      KAFKA_PASSWORD: pass
+      KAFKA_FEEDBACK_TOPIC: bre.feedback.message
+      KAFKA_REPORT_TOPIC: bre.report.message
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/storage
+      SPRING_DATASOURCE_USERNAME: storage
+      SPRING_DATASOURCE_PASSWORD: storage
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+
 volumes:
   minio_data:
+  postgres_data:

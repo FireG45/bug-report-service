@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ru.bre</groupId>
-    <artifactId>bug-report-service</artifactId>
+    <artifactId>report-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>bug-report-service</name>
-    <description>bug-report-service</description>
+    <name>report-service</name>
+    <description>report-service</description>
     <url/>
     <licenses>
         <license/>
@@ -79,6 +79,17 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>4.12.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.42</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

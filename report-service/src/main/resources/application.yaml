@@ -5,8 +5,8 @@ spring:
     protocol: smtps
     host: smtp.yandex.ru
     port: 465
-    username: ${EMAIL_USERNAME:brereport}
-    password: ${EMAIL_PASSWORD:qhghycgibazjzomh}
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
   servlet:
     multipart:
       location: ${java.io.tmpdir}
@@ -14,7 +14,7 @@ spring:
       max-request-size: 50MB
 
 mail:
-  from: ${EMAIL_USERNAME:brereport}@yandex.ru
+  from: ${EMAIL_USERNAME}@yandex.ru
 
 kafka:
   config:

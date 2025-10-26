@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="0001" author="r.borisov">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql"/>
+            <not>
+                <tableExists tableName="report"/>
+                <tableExists tableName="feedback"/>
+                <tableExists tableName="summary"/>
+            </not>
+        </preConditions>
+
+        <sql>
+            CREATE TABLE report (
+                                    id SERIAL PRIMARY KEY,
+                                    title VARCHAR(255) NOT NULL,
+                                    text TEXT NOT NULL,
+                                    image_file VARCHAR(512),
+                                    log_file VARCHAR(512),
+                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX idx_report_title ON report(title);
+            CREATE INDEX idx_report_created_at ON report(created_at);
+
+            CREATE TABLE feedback (
+                                      id SERIAL PRIMARY KEY,
+                                      title VARCHAR(255) NOT NULL,
+                                      text TEXT NOT NULL,
+                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX idx_feedback_title ON feedback(title);
+            CREATE INDEX idx_feedback_created_at ON feedback(created_at);
+
+            CREATE TABLE summary (
+                                     id SERIAL PRIMARY KEY,
+                                     title VARCHAR(255) NOT NULL,
+                                     text TEXT NOT NULL,
+                                     date TIMESTAMP,
+                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX idx_summary_title ON summary(title);
+            CREATE INDEX idx_summary_date ON summary(date);
+            CREATE INDEX idx_summary_created_at ON summary(created_at);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
