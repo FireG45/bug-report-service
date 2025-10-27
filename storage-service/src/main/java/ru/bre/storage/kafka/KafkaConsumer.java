@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.bre.storage.storage.dto.FeedbackDto;
-import ru.bre.storage.storage.dto.ReportDto;
-import ru.bre.storage.storage.dto.SummaryDto;
-import ru.bre.storage.storage.service.StorageService;
+import ru.bre.storage.dto.FeedbackDto;
+import ru.bre.storage.dto.ReportDto;
+import ru.bre.storage.dto.SummaryDto;
+import ru.bre.storage.service.StorageService;
 
 import java.util.logging.Logger;
 

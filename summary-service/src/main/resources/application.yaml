@@ -1,0 +1,35 @@
+
+
+spring:
+  application:
+    name: summary-service
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/storage}
+    username: ${SPRING_DATASOURCE_USERNAME:storage}
+    password: ${SPRING_DATASOURCE_PASSWORD:storage}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      pool-name: StorageHikariCP
+
+kafka:
+  config:
+    bootstrap:
+      servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    security:
+      protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+    sasl:
+      mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+    login:
+      module: ${KAFKA_LOGIN_MODULE:org.apache.kafka.common.security.plain.PlainLoginModule}
+    username: ${KAFKA_USERNAME:user}
+    password: ${KAFKA_PASSWORD:pass}
+
+  summary:
+    topic: ${KAFKA_SUMMARY_TOPIC:bre.summary.message}
+server:
+  port: 8083

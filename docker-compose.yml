@@ -131,6 +131,43 @@ services:
       SPRING_DATASOURCE_PASSWORD: storage
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
 
+  summary-service:
+    build: ./summary-service
+    container_name: summary-service
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8083:8080"
+    environment:
+      SPRING_APPLICATION_NAME: summary-service
+
+      # DB config
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/storage
+      SPRING_DATASOURCE_USERNAME: storage
+      SPRING_DATASOURCE_PASSWORD: storage
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+
+      # Kafka config
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9093
+      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_SASL_MECHANISM: PLAIN
+      KAFKA_LOGIN_MODULE: org.apache.kafka.common.security.plain.PlainLoginModule
+      KAFKA_USERNAME: user
+      KAFKA_PASSWORD: pass
+      KAFKA_SUMMARY_TOPIC: bre.summary.message
+
+      # Summary settings
+      SUMMARY_CRON: "0 0 3 * * *"
+      SUMMARY_DAYS_RANGE: 7
+
+    volumes:
+      - ./models:/models
+    restart: on-failure
+
+
 volumes:
   minio_data:
   postgres_data:
