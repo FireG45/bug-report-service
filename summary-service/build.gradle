@@ -4,8 +4,15 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.3'
 }
 
-group = 'ru.bre'
-version = '1.0-SNAPSHOT'
+group = 'ru.borisov'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -22,8 +29,6 @@ dependencies {
 
     implementation("org.springframework.kafka:spring-kafka:3.3.2")
 
-    implementation 'com.github.tjake:jlama-core:0.8.4'
-
     implementation "com.zaxxer:HikariCP:7.0.2"
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
@@ -31,32 +36,6 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
-    jvmArgs = ["--enable-preview", "--add-modules", "jdk.incubator.vector"]
 }
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-tasks.withType(JavaCompile) {
-    options.compilerArgs += ["--enable-preview"]
-}
-
-bootRun {
-    jvmArgs = ["--enable-preview", "--add-modules", "jdk.incubator.vector"]
-}
-
-bootJar {
-    manifest {
-        attributes(
-                'Start-Class': 'ru.bre.SummaryServiceApplication',
-                'Add-Modules': 'jdk.incubator.vector',
-                'Enable-Preview': 'true'
-        )
-    }
-}
-

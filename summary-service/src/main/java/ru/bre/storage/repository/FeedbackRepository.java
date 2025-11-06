@@ -25,7 +25,7 @@ public class FeedbackRepository {
     @Transactional
     public List<Feedback> getFeedbackFromDate(LocalDateTime fromDate) {
         try (Session session = sessionFactory.openSession()) {
-            String hql = "FROM Feedback f WHERE f.createdAt >= :fromDate ORDER BY f.createdAt DESC";
+            String hql = "FROM Feedback f WHERE f.createdAt >= :fromDate ORDER BY f.createdAt DESC LIMIT 50";
             Query<Feedback> query = session.createQuery(hql, Feedback.class);
             query.setParameter("fromDate", fromDate);
             return query.list();

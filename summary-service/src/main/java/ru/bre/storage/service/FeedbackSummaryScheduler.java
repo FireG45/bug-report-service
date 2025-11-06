@@ -11,6 +11,7 @@ import ru.bre.storage.entity.Feedback;
 import ru.bre.storage.repository.FeedbackRepository;
 import ru.bre.storage.service.summary.SummaryService;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class FeedbackSummaryScheduler {
     }
 
     @Scheduled(cron = "${summary.cron:0 0 2 * * *}")
-    public void collectFeedbackSummary() {
+    public void collectFeedbackSummary() throws IOException, InterruptedException {
         LocalDateTime fromDate = LocalDateTime.now().minusDays(daysInterval);
         log.info("Collecting feedback from last {} days (since {})", daysInterval, fromDate);
 

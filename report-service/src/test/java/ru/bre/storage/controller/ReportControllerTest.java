@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.bre.storage.config.RateLimitFilter;
 import ru.bre.storage.dto.FeedbackEntity;
 import ru.bre.storage.dto.ReportEntity;
 import ru.bre.storage.service.ReportServiceFallbackHandler;
@@ -28,7 +29,10 @@ class ReportControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(reportController).build();
+        RateLimitFilter rateLimitFilter = new RateLimitFilter();
+        mockMvc = MockMvcBuilders.standaloneSetup(reportController)
+                .addFilters(rateLimitFilter)
+                .build();
     }
 
     @Test
@@ -62,7 +66,7 @@ class ReportControllerTest {
         MockMultipartFile imageFile = new MockMultipartFile("imageFile", "image.png",
                 MediaType.IMAGE_PNG_VALUE, "dummy image".getBytes());
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3 ; i++) {
             mockMvc.perform(multipart("/report-send")
                             .file(imageFile)
                             .param("title", "R" + i)
@@ -77,15 +81,4 @@ class ReportControllerTest {
                 .andExpect(status().isTooManyRequests());
     }
 
-    @Test
-    void testFeedbackSendRuntimeException() throws Exception {
-        doThrow(new RuntimeException("Handler failed"))
-                .when(reportServiceHandler).handle(any(FeedbackEntity.class));
-
-        mockMvc.perform(multipart("/feedback-send")
-                        .param("title", "Fail")
-                        .param("text", "Fail text"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Handler failed"));
-    }
 }

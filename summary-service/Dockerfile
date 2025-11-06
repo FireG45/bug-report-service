@@ -15,6 +15,6 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 
 VOLUME ["/models"]
-EXPOSE 8080
+EXPOSE 8083
 
-ENTRYPOINT ["java", "--enable-preview", "--add-modules", "jdk.incubator.vector", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/*.jar"]

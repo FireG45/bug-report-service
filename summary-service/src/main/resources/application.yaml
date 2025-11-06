@@ -1,5 +1,3 @@
-
-
 spring:
   application:
     name: summary-service
@@ -16,6 +14,12 @@ spring:
       connection-timeout: 20000
       pool-name: StorageHikariCP
 
+llm:
+  api:
+    url: ${LLM_API_URL}
+    key: ${LLM_API_KEY}
+    secret: ${LLM_API_SECRET}
+
 kafka:
   config:
     bootstrap:
@@ -31,5 +35,3 @@ kafka:
 
   summary:
     topic: ${KAFKA_SUMMARY_TOPIC:bre.summary.message}
-server:
-  port: 8083

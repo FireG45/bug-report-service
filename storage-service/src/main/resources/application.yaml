@@ -39,6 +39,6 @@ kafka:
   feedback:
     topic: ${KAFKA_FEEDBACK_TOPIC:bre.feedback.message}
   report:
-    topic: ${KAFKA_REPORT_TOPIC:bre.report.message
+    topic: ${KAFKA_REPORT_TOPIC:bre.report.message}
   summary:
-    topic: ${KAFKA_SUMMARY_TOPIC:bre.summary.message
+    topic: ${KAFKA_SUMMARY_TOPIC:bre.summary.message}
