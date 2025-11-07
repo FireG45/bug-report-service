@@ -14,11 +14,9 @@ import java.util.List;
 @RequestMapping("/api/summary")
 public class SummaryController {
 
-    private final FeedbackRepository feedbackRepository;
     private final SummaryService summaryService;
 
-    public SummaryController(FeedbackRepository feedbackRepository, SummaryService summaryService) {
-        this.feedbackRepository = feedbackRepository;
+    public SummaryController(SummaryService summaryService) {
         this.summaryService = summaryService;
     }
 
@@ -28,11 +26,7 @@ public class SummaryController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime from
     ) throws IOException, InterruptedException {
-        List<Feedback> feedbacks = feedbackRepository.getFeedbackFromDate(from);
-        if (feedbacks.isEmpty()) {
-            return "No feedback found for the specified period.";
-        }
-        summaryService.createSummary(feedbacks);
-        return "Summary generation started successfully (check logs for output).";
+        summaryService.createSummaryAsync(from);
+        return "Summary generation background task started successfully";
     }
 }

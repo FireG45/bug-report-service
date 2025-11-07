@@ -34,7 +34,6 @@ kafka:
         group-id: report-consumer
       summary:
         group-id: summary-consumer
-      auto-offset-reset: earliest
 
   feedback:
     topic: ${KAFKA_FEEDBACK_TOPIC:bre.feedback.message}

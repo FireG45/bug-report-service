@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.bre.storage.entity.Feedback;
@@ -37,6 +38,7 @@ public class FeedbackSummaryScheduler {
         log.info("FeedbackSummaryScheduler initialized with daysInterval = {}", daysInterval);
     }
 
+    @Async("jobPool")
     @Scheduled(cron = "${summary.cron:0 0 2 * * *}")
     public void collectFeedbackSummary() throws IOException, InterruptedException {
         LocalDateTime fromDate = LocalDateTime.now().minusDays(daysInterval);
@@ -50,6 +52,6 @@ public class FeedbackSummaryScheduler {
         }
 
         log.info("Found {} feedback entries, passing to SummaryService", recentFeedbacks.size());
-        summaryService.createSummary(recentFeedbacks);
+        summaryService.createSummary(null);
     }
 }

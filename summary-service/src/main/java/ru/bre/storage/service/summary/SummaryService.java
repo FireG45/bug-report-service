@@ -1,10 +1,10 @@
 package ru.bre.storage.service.summary;
 
-import ru.bre.storage.entity.Feedback;
-
 import java.io.IOException;
-import java.util.List;
+import java.time.LocalDateTime;
 
 public interface SummaryService {
-    void createSummary(List<Feedback> feedbackList) throws IOException, InterruptedException;
+    void createSummary(LocalDateTime from) throws IOException, InterruptedException;
+
+    void createSummaryAsync(LocalDateTime from) throws IOException, InterruptedException;
 }

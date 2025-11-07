@@ -6,10 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ru.bre.kafka.KafkaProducer;
 import ru.bre.kafka.message.SummaryMessage;
 import ru.bre.storage.entity.Feedback;
+import ru.bre.storage.repository.FeedbackRepository;
 import ru.bre.storage.service.summary.SummaryService;
 import ru.bre.storage.service.summary.handler.LLMResponseHandler;
 
@@ -18,6 +20,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +38,7 @@ public class YaGptApiSummaryServiceImpl implements SummaryService {
     private final ObjectMapper mapper;
     private final KafkaProducer producer;
     private final LLMResponseHandler responseHandler;
+    private final FeedbackRepository feedbackRepository;
 
     @Autowired
     public YaGptApiSummaryServiceImpl(
@@ -42,7 +46,7 @@ public class YaGptApiSummaryServiceImpl implements SummaryService {
             @Value("${llm.api.key}") String apiKey,
             @Value("${llm.api.secret}") String apiSecret,
             ObjectMapper mapper,
-            KafkaProducer producer, LLMResponseHandler responseHandler
+            KafkaProducer producer, LLMResponseHandler responseHandler, FeedbackRepository feedbackRepository
     ) {
         this.producer = producer;
         this.apiUrl = apiUrl;
@@ -50,11 +54,14 @@ public class YaGptApiSummaryServiceImpl implements SummaryService {
         this.apiSecret = apiSecret;
         this.mapper = mapper;
         this.responseHandler = responseHandler;
+        this.feedbackRepository = feedbackRepository;
     }
 
     @Override
-    public void createSummary(List<Feedback> feedbackList) throws IOException, InterruptedException {
-        String combinedFeedback = feedbackList.stream()
+    public void createSummary(LocalDateTime from) throws IOException, InterruptedException {
+        List<Feedback> feedbacks = feedbackRepository.getFeedbackFromDate(from);
+
+        String combinedFeedback = feedbacks.stream()
                 .map(Feedback::toString)
                 .collect(Collectors.joining(", "));
 
@@ -96,5 +103,11 @@ public class YaGptApiSummaryServiceImpl implements SummaryService {
                 .asText();
 
         producer.sendSummaryMessage(new SummaryMessage("SUMMARY", summary, new Date()));
+    }
+
+    @Override
+    @Async("threadPool")
+    public void createSummaryAsync(LocalDateTime from) throws IOException, InterruptedException {
+        createSummary(from);
     }
 }
