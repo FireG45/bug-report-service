@@ -45,7 +45,7 @@
 ### 4. **Summary Service**
 
 * Читает отзывы из базы.
-* Генерирует сводки с помощью **JLLM**.
+* Генерирует сводки с помощью API **YandexGPT**.
 * Отправляет результаты в Kafka для хранения storage-service.
 
 ### 5. **MinIO**
@@ -53,7 +53,7 @@
 * Хранит файлы логов и скриншоты.
 * Предоставляет ссылки для фронтенда и storage-service.
 
-### 6. **Frontend / Dashboard**
+### 6. **Frontend / Dashboard** (Work in Progress)
 
 * Читает данные через API storage-service.
 * Отображает баг-репорты, отзывы и сводки.
@@ -89,6 +89,6 @@
 * **Messaging**: Apache Kafka
 * **Файлы**: MinIO (S3-совместимый)
 * **База данных**: PostgreSQL
-* **AI-сводки**: JLLM
+* **AI-сводки**: YandexGPT API
 * **Контейнеризация**: Docker Compose
 
