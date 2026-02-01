@@ -6,15 +6,6 @@
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
     <changeSet id="0001" author="r.borisov">
-        <preConditions onFail="MARK_RAN">
-            <dbms type="postgresql"/>
-            <not>
-                <tableExists tableName="report"/>
-                <tableExists tableName="feedback"/>
-                <tableExists tableName="summary"/>
-            </not>
-        </preConditions>
-
         <sql>
             CREATE TABLE report (
                                     id SERIAL PRIMARY KEY,

@@ -2,6 +2,7 @@ package ru.bre.storage.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,7 +11,9 @@ import ru.bre.storage.dto.FeedbackEntity;
 import ru.bre.storage.dto.ReportEntity;
 import ru.bre.storage.service.ReportServiceFallbackHandler;
 
+
 @RestController
+@CrossOrigin(origins = {"http://localhost:3000", "https://www.mrak-bre.ru"})
 public class ReportController {
 
     private final ReportServiceFallbackHandler reportServiceHandler;
