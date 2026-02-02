@@ -4,14 +4,11 @@ services:
   frontend:
     build: ../mrak-main-page
     container_name: frontend
+    restart: always
     ports:
       - "80:80"
-      - "443:443"
-    volumes:
-      - /etc/letsencrypt/live/mrak-bre.ru:/etc/letsencrypt/live/mrak-bre.ru:ro
-      - /etc/letsencrypt/archive/mrak-bre.ru:/etc/letsencrypt/archive/mrak-bre.ru:ro
-      - ./nginx/react_app.conf:/etc/nginx/conf.d/react_app.conf:ro
-
+    env_file:
+      - .env
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
