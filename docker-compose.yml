@@ -4,6 +4,9 @@ services:
   frontend:
     build: ../mrak-main-page
     container_name: frontend
+    restart: always
+    ports:
+      - "80:80"
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
