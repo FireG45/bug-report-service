@@ -3,6 +3,7 @@ target/
 report-service/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+summary-service/.gradle/
 
 ### STS ###
 .apt_generated
