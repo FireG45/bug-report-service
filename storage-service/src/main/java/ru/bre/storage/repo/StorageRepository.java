@@ -7,6 +7,12 @@ import ru.bre.storage.dto.SummaryDto;
 import java.util.List;
 
 public interface StorageRepository {
+    int deleteReports();
+
+    int deleteFeedbacks();
+
+    int deleteSummaries();
+
     void save(ReportDto report);
 
     void save(SummaryDto summary);

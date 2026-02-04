@@ -21,6 +21,21 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
+    public int deleteReports() {
+        return storageRepository.deleteReports();
+    }
+
+    @Override
+    public int deleteFeedbacks() {
+        return storageRepository.deleteFeedbacks();
+    }
+
+    @Override
+    public int deleteSummaries() {
+        return storageRepository.deleteSummaries();
+    }
+
+    @Override
     public void save(ReportDto report) {
         storageRepository.save(report);
     }

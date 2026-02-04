@@ -31,6 +31,21 @@ public class StorageRepositoryImpl implements StorageRepository {
     }
 
     @Override
+    public int deleteReports() {
+        return dsl.deleteFrom(REPORT).execute();
+    }
+
+    @Override
+    public int deleteFeedbacks() {
+        return dsl.deleteFrom(FEEDBACK).execute();
+    }
+
+    @Override
+    public int deleteSummaries() {
+        return dsl.deleteFrom(SUMMARY).execute();
+    }
+
+    @Override
     public void save(ReportDto report) {
         ReportRecord record = new ReportRecord();
         record.setTitle(report.title());

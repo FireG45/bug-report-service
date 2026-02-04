@@ -1,10 +1,8 @@
 package ru.bre.storage.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import ru.bre.storage.dto.FeedbackDto;
 import ru.bre.storage.dto.ReportDto;
 import ru.bre.storage.dto.SummaryDto;
@@ -38,4 +36,21 @@ public class StorageController {
         return storageService.getSummary(offset, limit);
     }
 
+    @DeleteMapping("/clean/{entity}")
+    public ResponseEntity<String> clean(@PathVariable String entity) {
+        try {
+            int deleted = 0;
+            switch (entity) {
+                case "feedback" -> deleted = storageService.deleteFeedbacks();
+                case "report" -> deleted = storageService.deleteReports();
+                case "summary" -> deleted = storageService.deleteSummaries();
+                default -> ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok(String.valueOf(deleted));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 }
