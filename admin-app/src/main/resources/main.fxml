@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.bre.admin.controller.MainController">
+   <children>
+      <Label text="Storage Service Admin Panel" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+      <Separator />
+      
+      <HBox spacing="10" VBox.vgrow="NEVER">
+         <children>
+            <Label text="Хост:" />
+            <TextField fx:id="hostField" HBox.hgrow="ALWAYS" promptText="http://localhost:8080" />
+            <Button fx:id="connectButton" text="Подключиться" onAction="#handleConnect" />
+         </children>
+         <padding>
+            <Insets top="10" right="10" bottom="10" left="10" />
+         </padding>
+      </HBox>
+
+      <Separator />
+
+      <HBox spacing="10" VBox.vgrow="NEVER">
+         <children>
+            <Button fx:id="reportsButton" text="Получить Reports" onAction="#handleGetReports" prefWidth="150" />
+            <Button fx:id="feedbackButton" text="Получить Feedback" onAction="#handleGetFeedback" prefWidth="150" />
+            <Button fx:id="summaryButton" text="Получить Summary" onAction="#handleGetSummary" prefWidth="150" />
+         </children>
+         <padding>
+            <Insets top="10" right="10" bottom="10" left="10" />
+         </padding>
+      </HBox>
+
+      <HBox spacing="10" VBox.vgrow="NEVER">
+         <children>
+            <Button fx:id="prevPageButton" text="◄ Предыдущая" onAction="#handlePrevPage" prefWidth="120" />
+            <Label fx:id="pageInfoLabel" />
+            <Button fx:id="nextPageButton" text="Следующая ►" onAction="#handleNextPage" prefWidth="120" />
+         </children>
+         <padding>
+            <Insets top="5" right="10" bottom="5" left="10" />
+         </padding>
+      </HBox>
+
+      <Separator />
+
+      <Label fx:id="statusLabel" text="Введите хост и нажмите 'Подключиться'" />
+
+      <TableView fx:id="dataTable" VBox.vgrow="ALWAYS" />
+      
+   </children>
+   <padding>
+      <Insets top="15" right="15" bottom="15" left="15" />
+   </padding>
+</VBox>

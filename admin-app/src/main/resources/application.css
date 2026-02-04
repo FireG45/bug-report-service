@@ -1,0 +1,36 @@
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 12px;
+}
+
+.button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-background-radius: 4;
+}
+
+.button:hover {
+    -fx-background-color: #45a049;
+}
+
+.button:disabled {
+    -fx-background-color: #cccccc;
+    -fx-text-fill: #666666;
+}
+
+.text-field {
+    -fx-padding: 5;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+
+.label {
+    -fx-font-size: 12px;
+}
+
+#statusLabel {
+    -fx-text-fill: #666666;
+    -fx-font-style: italic;
+}
