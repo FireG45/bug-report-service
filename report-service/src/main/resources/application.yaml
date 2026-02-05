@@ -16,6 +16,11 @@ spring:
 mail:
   from: ${EMAIL_USERNAME}@yandex.ru
 
+feature-toggle:
+    frontend-report: false
+
+server-secret: ${SERVER_SECRET}
+
 kafka:
   config:
     bootstrap:

@@ -1,6 +1,7 @@
 package ru.bre.storage.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.bre.storage.dto.FeedbackDto;
@@ -16,28 +17,34 @@ public class StorageController {
 
     private final StorageService storageService;
 
+    @Value("${server-secret}")
+    private String serverSecret;
+
     @Autowired
     public StorageController(StorageService storageService) {
         this.storageService = storageService;
     }
 
     @GetMapping("/report")
-    public List<ReportDto> getReports(@RequestParam Integer offset, @RequestParam Integer limit) {
-        return storageService.getReports(offset, limit);
+    public ResponseEntity<List<ReportDto>> getReports(@RequestParam Integer offset, @RequestParam Integer limit, @RequestParam String secret) {
+        return serverSecret.equals(secret) ? ResponseEntity.ok(storageService.getReports(offset, limit)) : ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/feedback")
-    public List<FeedbackDto> getFeedback(@RequestParam Integer offset, @RequestParam Integer limit) {
-        return storageService.getFeedback(offset, limit);
+    public ResponseEntity<List<FeedbackDto>> getFeedback(@RequestParam Integer offset, @RequestParam Integer limit, @RequestParam String secret) {
+        return serverSecret.equals(secret) ? ResponseEntity.ok(storageService.getFeedback(offset, limit)) : ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/summary")
-    public List<SummaryDto> getSummary(@RequestParam Integer offset, @RequestParam Integer limit) {
-        return storageService.getSummary(offset, limit);
+    public ResponseEntity<List<SummaryDto>> getSummary(@RequestParam Integer offset, @RequestParam Integer limit, @RequestParam String secret) {
+        return serverSecret.equals(secret) ? ResponseEntity.ok(storageService.getSummary(offset, limit)) : ResponseEntity.badRequest().build();
     }
 
     @DeleteMapping("/clean/{entity}")
-    public ResponseEntity<String> clean(@PathVariable String entity) {
+    public ResponseEntity<String> clean(@PathVariable String entity, @RequestParam String secret) {
+        if (!serverSecret.equals(secret)) {
+            return ResponseEntity.badRequest().build();
+        }
         try {
             int deleted = 0;
             switch (entity) {

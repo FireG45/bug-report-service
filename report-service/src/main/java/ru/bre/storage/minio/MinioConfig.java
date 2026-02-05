@@ -3,6 +3,7 @@ package ru.bre.storage.minio;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
+import io.minio.SetBucketPolicyArgs;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,9 +46,39 @@ public class MinioConfig {
     }
 
     private void createBucketIfNotExists(MinioClient client, String bucketName) throws Exception {
-        boolean exists = client.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        boolean exists = client.bucketExists(
+                BucketExistsArgs.builder().bucket(bucketName).build()
+        );
+
         if (!exists) {
-            client.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            client.makeBucket(
+                    MakeBucketArgs.builder().bucket(bucketName).build()
+            );
         }
+
+        setPublicReadPolicy(client, bucketName);
+    }
+
+    private void setPublicReadPolicy(MinioClient client, String bucketName) throws Exception {
+        String policy = """
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": "s3:GetObject",
+              "Resource": "arn:aws:s3:::%s/*"
+            }
+          ]
+        }
+        """.formatted(bucketName);
+
+        client.setBucketPolicy(
+                SetBucketPolicyArgs.builder()
+                        .bucket(bucketName)
+                        .config(policy)
+                        .build()
+        );
     }
 }

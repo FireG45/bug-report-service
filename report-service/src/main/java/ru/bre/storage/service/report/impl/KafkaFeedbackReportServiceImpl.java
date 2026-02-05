@@ -1,5 +1,6 @@
 package ru.bre.storage.service.report.impl;
 
+import io.minio.errors.MinioException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -43,8 +44,8 @@ public class KafkaFeedbackReportServiceImpl implements FeedbackReportService {
         ReportMessage reportMessage = new ReportMessage(
                 reportEntity.getTitle(),
                 reportEntity.getText(),
-                logFileName,
-                imageFileName
+                imageFileName,
+                logFileName
         );
         kafkaProducer.sendReportMessage(reportMessage);
         minioService.uploadLogFile(logFileName, reportEntity.getLogFile());

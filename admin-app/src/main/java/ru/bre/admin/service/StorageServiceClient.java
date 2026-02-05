@@ -23,6 +23,7 @@ public class StorageServiceClient {
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private String baseUrl;
+    private String secret;
 
     public StorageServiceClient() {
         HttpClient client;
@@ -66,15 +67,33 @@ public class StorageServiceClient {
     }
 
     public void setBaseUrl(String baseUrl) {
-        // Убираем завершающий слэш если есть
         if (baseUrl.endsWith("/")) {
             baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
         }
         this.baseUrl = baseUrl;
     }
 
+    public void setSecret(String secret) {
+        this.secret = secret.trim();
+    }
+
+    public void delete(String entity) throws IOException, InterruptedException {
+        String url = baseUrl + "/v1/api/clean/" + entity + "&secret=" + secret;
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .DELETE()
+                .timeout(Duration.ofSeconds(30))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("HTTP error code: " + response.statusCode() + ", response: " + response.body());
+        }
+    }
+
     public List<ReportDto> getReports(int offset, int limit) throws IOException, InterruptedException {
-        String url = baseUrl + "/v1/api/report?offset=" + offset + "&limit=" + limit;
+        String url = baseUrl + "/v1/api/report?offset=" + offset + "&limit=" + limit + "&secret=" + secret;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET()
@@ -91,7 +110,7 @@ public class StorageServiceClient {
     }
 
     public List<FeedbackDto> getFeedback(int offset, int limit) throws IOException, InterruptedException {
-        String url = baseUrl + "/v1/api/feedback?offset=" + offset + "&limit=" + limit;
+        String url = baseUrl + "/v1/api/feedback?offset=" + offset + "&limit=" + limit + "&secret=" + secret;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET()
@@ -108,7 +127,7 @@ public class StorageServiceClient {
     }
 
     public List<SummaryDto> getSummary(int offset, int limit) throws IOException, InterruptedException {
-        String url = baseUrl + "/v1/api/summary?offset=" + offset + "&limit=" + limit;
+        String url = baseUrl + "/v1/api/summary?offset=" + offset + "&limit=" + limit + "&secret=" + secret;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET()
@@ -122,22 +141,5 @@ public class StorageServiceClient {
         }
 
         return objectMapper.readValue(response.body(), new TypeReference<List<SummaryDto>>() {});
-    }
-
-    public String cleanEntity(String entity) throws IOException, InterruptedException {
-        String url = baseUrl + "/v1/api/clean/" + entity;
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .DELETE()
-                .timeout(Duration.ofSeconds(30))
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new IOException("HTTP error code: " + response.statusCode() + ", response: " + response.body());
-        }
-
-        return response.body();
     }
 }

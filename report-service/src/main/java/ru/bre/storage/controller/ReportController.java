@@ -1,11 +1,11 @@
 package ru.bre.storage.controller;
 
+import jakarta.websocket.server.PathParam;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.bre.storage.dto.FeedbackEntity;
 import ru.bre.storage.dto.ReportEntity;
@@ -17,6 +17,12 @@ import ru.bre.storage.service.ReportServiceFallbackHandler;
 public class ReportController {
 
     private final ReportServiceFallbackHandler reportServiceHandler;
+
+    @Value("${feature-toggle.frontend-report:true}")
+    private boolean frontendReportEnabled;
+
+    @Value("${server-secret}")
+    private String serverSecret;
 
     @Autowired
     public ReportController(ReportServiceFallbackHandler reportServiceHandler) {
@@ -41,5 +47,23 @@ public class ReportController {
     ) {
         reportServiceHandler.handle(new FeedbackEntity(title, text));
         return ResponseEntity.ok("OK!");
+    }
+
+    @PostMapping("/set-frontend-report/{value}")
+    public ResponseEntity<String> setFrontendReport(
+            @PathParam("value") boolean value,
+            @RequestParam("secret") String secret
+    ) {
+        if (secret.equals(serverSecret)) {
+            frontendReportEnabled = value;
+            return ResponseEntity.ok("OK!");
+        } else {
+            return ResponseEntity.badRequest().body("Wrong secret!");
+        }
+    }
+
+    @GetMapping("/get-frontend-report")
+    public ResponseEntity<Boolean> getFrontendReport() {
+        return ResponseEntity.ok(frontendReportEnabled);
     }
 }

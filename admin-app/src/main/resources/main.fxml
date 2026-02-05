@@ -13,6 +13,7 @@
          <children>
             <Label text="Хост:" />
             <TextField fx:id="hostField" HBox.hgrow="ALWAYS" promptText="http://localhost:8080" />
+            <TextField fx:id="secretField" HBox.hgrow="ALWAYS" promptText="" />
             <Button fx:id="connectButton" text="Подключиться" onAction="#handleConnect" />
          </children>
          <padding>
@@ -27,6 +28,17 @@
             <Button fx:id="reportsButton" text="Получить Reports" onAction="#handleGetReports" prefWidth="150" />
             <Button fx:id="feedbackButton" text="Получить Feedback" onAction="#handleGetFeedback" prefWidth="150" />
             <Button fx:id="summaryButton" text="Получить Summary" onAction="#handleGetSummary" prefWidth="150" />
+         </children>
+         <padding>
+            <Insets top="10" right="10" bottom="10" left="10" />
+         </padding>
+      </HBox>
+
+      <HBox spacing="10" VBox.vgrow="NEVER">
+         <children>
+            <Button fx:id="reportsDeleteButton" text="Удалить Reports" onAction="#handleDeleteReports" prefWidth="150" />
+            <Button fx:id="feedbackDeleteButton" text="Удалить Feedback" onAction="#handleDeleteFeedback" prefWidth="150" />
+            <Button fx:id="summaryDeleteButton" text="Удалить Summary" onAction="#handleDeleteSummary" prefWidth="150" />
          </children>
          <padding>
             <Insets top="10" right="10" bottom="10" left="10" />

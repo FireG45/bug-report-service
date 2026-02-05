@@ -1,7 +1,9 @@
 package ru.bre.storage.service.minio;
 
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.http.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class MinioService {
 
     private final Logger log = LoggerFactory.getLogger(MinioService.class);
-
     private final MinioClient minioClient;
 
     @Value("${minio.bucket.screenshot}")
@@ -39,16 +40,25 @@ public class MinioService {
         }
     }
 
-    public void uploadScreenshotFile(String fileName, MultipartFile file) {
+    public String uploadScreenshotFile(String fileName, MultipartFile file) {
         try {
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(screenshotBucket)
                     .object(fileName)
                     .stream(file.getInputStream(), file.getSize(), -1)
                     .build());
+
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .bucket(screenshotBucket)
+                            .object(fileName)
+                            .method(Method.GET)
+                            .expiry(7 * 24 * 60 * 60)
+                            .build()
+            );
         } catch (Exception e) {
-            log.error("Happened error when upload log file: ", e);
+            log.error("Error uploading screenshot file: ", e);
+            return null;
         }
     }
-
 }
