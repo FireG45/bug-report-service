@@ -1,14 +1,14 @@
 version: "3.9"
 
 services:
-  frontend:
-    build: ../mrak-main-page
-    container_name: frontend
-    restart: always
-    ports:
-      - "127.0.0.1:3000:3000"
-    env_file:
-      - .env
+#  frontend:
+#    build: ../mrak-main-page
+#    container_name: frontend
+#    restart: always
+#    ports:
+#      - "127.0.0.1:3000:3000"
+#    env_file:
+#      - .env
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
@@ -111,6 +111,8 @@ services:
       MINIO_ACCESS_SECRET: minioadmin
       MINIO_BUCKET_SCREENSHOT: screenshots
       MINIO_BUCKET_LOG: logs
+    env_file:
+      - .env
 
   storage-service:
     build: ./storage-service
@@ -138,6 +140,9 @@ services:
       SPRING_DATASOURCE_USERNAME: storage
       SPRING_DATASOURCE_PASSWORD: storage
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+    env_file:
+      - .env
+
 
   summary-service:
     build: ./summary-service
