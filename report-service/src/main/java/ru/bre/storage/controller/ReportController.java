@@ -51,9 +51,9 @@ public class ReportController {
         return ResponseEntity.ok("OK!");
     }
 
-    @PostMapping("/set-frontend-report/{value}")
+    @PostMapping("/set-frontend-report")
     public ResponseEntity<String> setFrontendReport(
-            @PathParam("value") boolean value,
+            @RequestParam("value") boolean value,
             @RequestParam("secret") String secret
     ) {
         if (secret.equals(serverSecret)) {
