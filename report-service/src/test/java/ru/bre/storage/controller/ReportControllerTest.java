@@ -21,7 +21,6 @@ class ReportControllerTest {
     @Mock
     private ReportServiceFallbackHandler reportServiceHandler;
 
-    @InjectMocks
     private ReportController reportController;
 
     private MockMvc mockMvc;
@@ -29,6 +28,7 @@ class ReportControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        reportController = new ReportController(reportServiceHandler, true);
         RateLimitFilter rateLimitFilter = new RateLimitFilter();
         mockMvc = MockMvcBuilders.standaloneSetup(reportController)
                 .addFilters(rateLimitFilter)

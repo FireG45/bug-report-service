@@ -22,7 +22,6 @@ class ReportControllerFallbackTest {
     @Mock
     private ReportServiceFallbackHandler reportServiceHandler;
 
-    @InjectMocks
     private ReportController reportController;
 
     private MockMvc mockMvc;
@@ -30,6 +29,7 @@ class ReportControllerFallbackTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        reportController = new ReportController(reportServiceHandler, true);
         mockMvc = MockMvcBuilders.standaloneSetup(reportController).build();
     }
 
