@@ -25,6 +25,12 @@ public class MainController {
     private TextField secretField;
 
     @FXML
+    private TextField reportHostField;
+
+    @FXML
+    private ToggleButton frontendReportToggle;
+
+    @FXML
     private Button connectButton;
 
     @FXML
@@ -80,6 +86,11 @@ public class MainController {
         if (!savedSecret.isEmpty()) {
             secretField.setText(savedSecret);
         }
+
+        String savedReportHost = ConfigManager.loadReportHost();
+        if (!savedReportHost.isEmpty()) {
+            reportHostField.setText(savedReportHost);
+        }
         
         statusLabel.setText("Введите хост и нажмите 'Подключиться'");
         pageInfoLabel.setText("");
@@ -92,6 +103,7 @@ public class MainController {
         reportsDeleteButton.setDisable(true);
         summaryDeleteButton.setDisable(true);
         feedbackDeleteButton.setDisable(true);
+        frontendReportToggle.setDisable(true);
 
         dataTable.getSelectionModel().setCellSelectionEnabled(true);
         dataTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -142,15 +154,23 @@ public class MainController {
             host = "http://" + host;
         }
 
+        String reportHost = reportHostField.getText().trim();
+        if (!reportHost.isEmpty() && !reportHost.startsWith("http://") && !reportHost.startsWith("https://")) {
+            reportHost = "http://" + reportHost;
+        }
+
         try {
             client.setBaseUrl(host);
             client.setSecret(secret);
+            if (!reportHost.isEmpty()) {
+                client.setReportBaseUrl(reportHost);
+            }
             currentHost = host;
             currentPage = 0;
-            
+
             // Сохраняем хост
-            ConfigManager.saveConfig(host, secret);
-            
+            ConfigManager.saveConfig(host, secret, reportHost);
+
             statusLabel.setText("Подключено к: " + host);
             pageInfoLabel.setText("");
             reportsButton.setDisable(false);
@@ -161,6 +181,11 @@ public class MainController {
             reportsDeleteButton.setDisable(false);
             summaryDeleteButton.setDisable(false);
             feedbackDeleteButton.setDisable(false);
+
+            if (!reportHost.isEmpty()) {
+                frontendReportToggle.setDisable(false);
+                loadFrontendReportState();
+            }
         } catch (Exception e) {
             showError("Ошибка подключения", e.getMessage());
             statusLabel.setText("Ошибка подключения");
@@ -207,6 +232,52 @@ public class MainController {
         currentEntityType = "summary";
         currentPage = 0;
         deleteData("summary");
+    }
+
+    @FXML
+    private void handleToggleFrontendReport() {
+        boolean newValue = frontendReportToggle.isSelected();
+        frontendReportToggle.setDisable(true);
+        statusLabel.setText("Переключение frontend report...");
+
+        new Thread(() -> {
+            try {
+                String result = client.setFrontendReport(newValue);
+                Platform.runLater(() -> {
+                    updateToggleText(newValue);
+                    statusLabel.setText(result);
+                    frontendReportToggle.setDisable(false);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    frontendReportToggle.setSelected(!newValue);
+                    statusLabel.setText("Ошибка переключения frontend report");
+                    showError("Ошибка", "Не удалось переключить frontend report: " + e.getMessage());
+                    frontendReportToggle.setDisable(false);
+                });
+            }
+        }).start();
+    }
+
+    private void loadFrontendReportState() {
+        new Thread(() -> {
+            try {
+                boolean state = client.getFrontendReport();
+                Platform.runLater(() -> {
+                    frontendReportToggle.setSelected(state);
+                    updateToggleText(state);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    frontendReportToggle.setText("Frontend Report: ???");
+                    statusLabel.setText("Не удалось получить состояние frontend report");
+                });
+            }
+        }).start();
+    }
+
+    private void updateToggleText(boolean enabled) {
+        frontendReportToggle.setText("Frontend Report: " + (enabled ? "ON" : "OFF"));
     }
 
     @FXML
@@ -355,7 +426,7 @@ public class MainController {
         imageFileCol.setCellValueFactory(cell -> {
             ReportDto dto = (ReportDto) cell.getValue();
             return new javafx.beans.property.SimpleStringProperty(
-                    buildMinioUrl(dto.getImageFile(), "screenshot")
+                    buildMinioUrl(dto.getImageFile(), "screenshots")
             );
         });
         imageFileCol.setCellFactory(col -> createLinkCell());
@@ -365,7 +436,7 @@ public class MainController {
         logFileCol.setCellValueFactory(cell -> {
             ReportDto dto = (ReportDto) cell.getValue();
             return new javafx.beans.property.SimpleStringProperty(
-                    buildMinioUrl(dto.getLogFile(), "log")
+                    buildMinioUrl(dto.getLogFile(), "logs")
             );
         });
         logFileCol.setCellFactory(col -> createLinkCell());

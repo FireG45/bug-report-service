@@ -23,6 +23,7 @@ public class StorageServiceClient {
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private String baseUrl;
+    private String reportBaseUrl;
     private String secret;
 
     public StorageServiceClient() {
@@ -73,12 +74,19 @@ public class StorageServiceClient {
         this.baseUrl = baseUrl;
     }
 
+    public void setReportBaseUrl(String reportBaseUrl) {
+        if (reportBaseUrl.endsWith("/")) {
+            reportBaseUrl = reportBaseUrl.substring(0, reportBaseUrl.length() - 1);
+        }
+        this.reportBaseUrl = reportBaseUrl;
+    }
+
     public void setSecret(String secret) {
         this.secret = secret.trim();
     }
 
     public void delete(String entity) throws IOException, InterruptedException {
-        String url = baseUrl + "/v1/api/clean/" + entity + "&secret=" + secret;
+        String url = baseUrl + "/v1/api/clean/" + entity + "?secret=" + secret;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .DELETE()
@@ -141,5 +149,39 @@ public class StorageServiceClient {
         }
 
         return objectMapper.readValue(response.body(), new TypeReference<List<SummaryDto>>() {});
+    }
+
+    public boolean getFrontendReport() throws IOException, InterruptedException {
+        String url = reportBaseUrl + "/get-frontend-report";
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .timeout(Duration.ofSeconds(30))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("HTTP error code: " + response.statusCode() + ", response: " + response.body());
+        }
+
+        return Boolean.parseBoolean(response.body());
+    }
+
+    public String setFrontendReport(boolean value) throws IOException, InterruptedException {
+        String url = reportBaseUrl + "/set-frontend-report/" + value + "?secret=" + secret;
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .timeout(Duration.ofSeconds(30))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("HTTP error code: " + response.statusCode() + ", response: " + response.body());
+        }
+
+        return response.body();
     }
 }

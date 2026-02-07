@@ -21,6 +21,16 @@
          </padding>
       </HBox>
 
+      <HBox spacing="10" VBox.vgrow="NEVER">
+         <children>
+            <Label text="Report Service:" />
+            <TextField fx:id="reportHostField" HBox.hgrow="ALWAYS" promptText="http://localhost:8081" />
+         </children>
+         <padding>
+            <Insets top="0" right="10" bottom="10" left="10" />
+         </padding>
+      </HBox>
+
       <Separator />
 
       <HBox spacing="10" VBox.vgrow="NEVER">
@@ -39,6 +49,15 @@
             <Button fx:id="reportsDeleteButton" text="Удалить Reports" onAction="#handleDeleteReports" prefWidth="150" />
             <Button fx:id="feedbackDeleteButton" text="Удалить Feedback" onAction="#handleDeleteFeedback" prefWidth="150" />
             <Button fx:id="summaryDeleteButton" text="Удалить Summary" onAction="#handleDeleteSummary" prefWidth="150" />
+         </children>
+         <padding>
+            <Insets top="10" right="10" bottom="10" left="10" />
+         </padding>
+      </HBox>
+
+      <HBox spacing="10" VBox.vgrow="NEVER">
+         <children>
+            <ToggleButton fx:id="frontendReportToggle" text="Frontend Report: ???" onAction="#handleToggleFrontendReport" prefWidth="200" />
          </children>
          <padding>
             <Insets top="10" right="10" bottom="10" left="10" />

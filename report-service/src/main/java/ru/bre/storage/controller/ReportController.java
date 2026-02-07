@@ -18,15 +18,17 @@ public class ReportController {
 
     private final ReportServiceFallbackHandler reportServiceHandler;
 
-    @Value("${feature-toggle.frontend-report:true}")
     private boolean frontendReportEnabled;
 
     @Value("${server-secret}")
     private String serverSecret;
 
     @Autowired
-    public ReportController(ReportServiceFallbackHandler reportServiceHandler) {
+    public ReportController(ReportServiceFallbackHandler reportServiceHandler,
+                            @Value("${feature-toggle.frontend-report:true}")
+                            boolean frontendReportEnabled) {
         this.reportServiceHandler = reportServiceHandler;
+        this.frontendReportEnabled = frontendReportEnabled;
     }
 
     @PostMapping("/report-send")
@@ -56,7 +58,7 @@ public class ReportController {
     ) {
         if (secret.equals(serverSecret)) {
             frontendReportEnabled = value;
-            return ResponseEntity.ok("OK!");
+            return ResponseEntity.ok("frontendReportEnabled = " + frontendReportEnabled);
         } else {
             return ResponseEntity.badRequest().body("Wrong secret!");
         }

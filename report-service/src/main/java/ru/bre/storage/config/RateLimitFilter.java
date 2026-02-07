@@ -33,8 +33,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String ip = request.getRemoteAddr();
+        String path = request.getRequestURI();
 
-        Bucket bucket = resolveBucket(ip);
+        Bucket bucket = isToggleEndpoint(path)
+                ? resolveToggleBucket(ip)
+                : resolveBucket(ip);
 
         if (bucket.tryConsume(1)) {
             filterChain.doFilter(request, response);
@@ -44,12 +47,25 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
     }
 
+    private boolean isToggleEndpoint(String path) {
+        return path.startsWith("/set-frontend-report") || path.startsWith("/get-frontend-report");
+    }
+
     private Bucket createNewBucket() {
         Bandwidth limit = Bandwidth.classic(3, Refill.intervally(1, Duration.ofMinutes(1)));
         return Bucket.builder().addLimit(limit).build();
     }
 
+    private Bucket createToggleBucket() {
+        Bandwidth limit = Bandwidth.classic(20, Refill.intervally(10, Duration.ofMinutes(1)));
+        return Bucket.builder().addLimit(limit).build();
+    }
+
     private Bucket resolveBucket(String ip) {
         return cache.get(ip, k -> createNewBucket());
+    }
+
+    private Bucket resolveToggleBucket(String ip) {
+        return cache.get("toggle:" + ip, k -> createToggleBucket());
     }
 }
