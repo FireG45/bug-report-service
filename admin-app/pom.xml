@@ -89,7 +89,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>ru.bre.admin.AdminApp</mainClass>
+                                    <mainClass>ru.bre.admin.Launcher</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

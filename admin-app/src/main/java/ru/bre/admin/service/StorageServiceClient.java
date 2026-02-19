@@ -169,7 +169,7 @@ public class StorageServiceClient {
     }
 
     public String setFrontendReport(boolean value) throws IOException, InterruptedException {
-        String url = reportBaseUrl + "/set-frontend-report/" + "?value=" + value + "&secret=" + secret;
+        String url = reportBaseUrl + "/set-frontend-report" + "?value=" + value + "&secret=" + secret;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .POST(HttpRequest.BodyPublishers.noBody())
