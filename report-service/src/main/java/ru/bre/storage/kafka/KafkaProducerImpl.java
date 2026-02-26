@@ -8,6 +8,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.bre.storage.dto.message.FeedbackMessage;
 import ru.bre.storage.dto.message.ReportMessage;
+import ru.bre.storage.exception.ReportException;
+
+import java.util.concurrent.ExecutionException;
 
 @Component
 public class KafkaProducerImpl implements KafkaProducer {
@@ -29,12 +32,20 @@ public class KafkaProducerImpl implements KafkaProducer {
 
     @Override
     public void sendReportMessage(ReportMessage reportMessage) {
-        kafkaTemplate.send(reportTopic, convertToMessage(reportMessage));
+        try {
+            kafkaTemplate.send(reportTopic, convertToMessage(reportMessage)).get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new ReportException(e);
+        }
     }
 
     @Override
     public void sendFeedbackMessage(FeedbackMessage feedbackMessage) {
-        kafkaTemplate.send(feedbackTopic, convertToMessage(feedbackMessage));
+        try {
+            kafkaTemplate.send(feedbackTopic, convertToMessage(feedbackMessage)).get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new ReportException(e);
+        }
     }
 
     private String convertToMessage(Object event) {

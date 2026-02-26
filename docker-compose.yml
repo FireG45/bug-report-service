@@ -55,7 +55,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_SECRET}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -107,8 +107,8 @@ services:
       KAFKA_FEEDBACK_TOPIC: bre.feedback.message
 
       MINIO_URL: http://minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_ACCESS_SECRET: minioadmin
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_ACCESS_SECRET: ${MINIO_ACCESS_SECRET}
       MINIO_BUCKET_SCREENSHOT: screenshots
       MINIO_BUCKET_LOG: logs
     env_file:
@@ -179,6 +179,25 @@ services:
       - ./models:/models
     restart: on-failure
 
+
+  healthcheck-monitor:
+    image: bash:5
+    container_name: healthcheck-monitor
+    depends_on:
+      - kafka
+      - postgres
+      - minio
+      - report-service
+      - storage-service
+      - summary-service
+    volumes:
+      - ./monitoring/healthcheck.sh:/healthcheck.sh:ro
+    entrypoint: ["bash", "/healthcheck.sh"]
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      CHECK_INTERVAL: 30
+    restart: unless-stopped
 
 volumes:
   minio_data:

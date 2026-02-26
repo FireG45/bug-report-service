@@ -35,30 +35,38 @@ public class KafkaFeedbackReportServiceImpl implements FeedbackReportService {
 
     @Override
     public void report(ReportEntity reportEntity) throws ReportException {
-        MultipartFile logFile = reportEntity.getLogFile();
-        MultipartFile imageFile = reportEntity.getImageFile();
+        try {
+            MultipartFile logFile = reportEntity.getLogFile();
+            MultipartFile imageFile = reportEntity.getImageFile();
 
-        String logFileName = generateFilename(LOG_FILE_NAME, logFile.getOriginalFilename());
-        String imageFileName = generateFilename(SCREENSHOT_FILE_NAME, imageFile.getOriginalFilename());
+            String logFileName = generateFilename(LOG_FILE_NAME, logFile.getOriginalFilename());
+            String imageFileName = generateFilename(SCREENSHOT_FILE_NAME, imageFile.getOriginalFilename());
 
-        ReportMessage reportMessage = new ReportMessage(
-                reportEntity.getTitle(),
-                reportEntity.getText(),
-                imageFileName,
-                logFileName
-        );
-        kafkaProducer.sendReportMessage(reportMessage);
-        minioService.uploadLogFile(logFileName, reportEntity.getLogFile());
-        minioService.uploadScreenshotFile(imageFileName, reportEntity.getImageFile());
+            ReportMessage reportMessage = new ReportMessage(
+                    reportEntity.getTitle(),
+                    reportEntity.getText(),
+                    imageFileName,
+                    logFileName
+            );
+            kafkaProducer.sendReportMessage(reportMessage);
+            minioService.uploadLogFile(logFileName, reportEntity.getLogFile());
+            minioService.uploadScreenshotFile(imageFileName, reportEntity.getImageFile());
+        } catch (Exception e) {
+            throw new ReportException(e);
+        }
     }
 
     @Override
     public void feedback(FeedbackEntity feedbackEntity) throws ReportException {
-        FeedbackMessage reportMessageDto = new FeedbackMessage(
-                feedbackEntity.getTitle(),
-                feedbackEntity.getText()
-        );
-        kafkaProducer.sendFeedbackMessage(reportMessageDto);
+        try {
+            FeedbackMessage reportMessageDto = new FeedbackMessage(
+                    feedbackEntity.getTitle(),
+                    feedbackEntity.getText()
+            );
+            kafkaProducer.sendFeedbackMessage(reportMessageDto);
+        } catch (Exception e) {
+            throw new ReportException(e);
+        }
     }
 
     private String generateFilename(String name, String originalFilename) {
