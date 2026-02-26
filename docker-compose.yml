@@ -181,7 +181,7 @@ services:
 
 
   healthcheck-monitor:
-    image: bash:5
+    image: alpine:3.19
     container_name: healthcheck-monitor
     depends_on:
       - kafka
@@ -192,7 +192,7 @@ services:
       - summary-service
     volumes:
       - ./monitoring/healthcheck.sh:/healthcheck.sh:ro
-    entrypoint: ["bash", "/healthcheck.sh"]
+    entrypoint: ["/bin/sh", "-c", "apk add --no-cache bash curl > /dev/null 2>&1 && bash /healthcheck.sh"]
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
