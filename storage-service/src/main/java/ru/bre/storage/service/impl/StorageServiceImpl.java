@@ -64,4 +64,19 @@ public class StorageServiceImpl implements StorageService {
     public List<SummaryDto> getSummary(int offset, int limit) {
         return storageRepository.getSummary(offset, limit);
     }
+
+    @Override
+    public int deleteReportById(int id) {
+        return storageRepository.deleteReportById(id);
+    }
+
+    @Override
+    public int deleteFeedbackById(int id) {
+        return storageRepository.deleteFeedbackById(id);
+    }
+
+    @Override
+    public int deleteSummaryById(int id) {
+        return storageRepository.deleteSummaryById(id);
+    }
 }

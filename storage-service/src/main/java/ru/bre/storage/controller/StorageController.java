@@ -45,6 +45,27 @@ public class StorageController {
         return ResponseEntity.ok("OK");
     }
 
+    @DeleteMapping("/{entity}/{id}")
+    public ResponseEntity<String> deleteById(@PathVariable String entity, @PathVariable Integer id, @RequestParam String secret) {
+        if (!serverSecret.equals(secret)) {
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            int deleted = switch (entity) {
+                case "report" -> storageService.deleteReportById(id);
+                case "feedback" -> storageService.deleteFeedbackById(id);
+                case "summary" -> storageService.deleteSummaryById(id);
+                default -> 0;
+            };
+            if (deleted == 0) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(String.valueOf(deleted));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
     @DeleteMapping("/clean/{entity}")
     public ResponseEntity<String> clean(@PathVariable String entity, @RequestParam String secret) {
         if (!serverSecret.equals(secret)) {

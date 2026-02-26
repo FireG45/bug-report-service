@@ -79,6 +79,7 @@ public class StorageRepositoryImpl implements StorageRepository {
     public List<ReportDto> getReports(int offset, int limit) {
         return dsl.selectFrom(REPORT).offset(offset).limit(limit).fetch()
                 .map(record -> new ReportDto(
+                        record.getId(),
                         record.getTitle(),
                         record.getText(),
                         record.getImageFile(),
@@ -90,6 +91,7 @@ public class StorageRepositoryImpl implements StorageRepository {
     public List<FeedbackDto> getFeedback(int offset, int limit) {
         return dsl.selectFrom(FEEDBACK).offset(offset).limit(limit).fetch()
                 .map(record -> new FeedbackDto(
+                        record.getId(),
                         record.getTitle(),
                         record.getText()
                 ));
@@ -99,9 +101,25 @@ public class StorageRepositoryImpl implements StorageRepository {
     public List<SummaryDto> getSummary(int offset, int limit) {
         return dsl.selectFrom(SUMMARY).offset(offset).limit(limit).fetch()
                 .map(record -> new SummaryDto(
+                        record.getId(),
                         record.getTitle(),
                         record.getText(),
                         Date.from(record.getDate().atZone(ZoneId.systemDefault()).toInstant())
                 ));
+    }
+
+    @Override
+    public int deleteReportById(int id) {
+        return dsl.deleteFrom(REPORT).where(REPORT.ID.eq(id)).execute();
+    }
+
+    @Override
+    public int deleteFeedbackById(int id) {
+        return dsl.deleteFrom(FEEDBACK).where(FEEDBACK.ID.eq(id)).execute();
+    }
+
+    @Override
+    public int deleteSummaryById(int id) {
+        return dsl.deleteFrom(SUMMARY).where(SUMMARY.ID.eq(id)).execute();
     }
 }

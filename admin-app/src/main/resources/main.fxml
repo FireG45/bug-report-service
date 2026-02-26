@@ -69,6 +69,8 @@
             <Button fx:id="prevPageButton" text="◄ Предыдущая" onAction="#handlePrevPage" prefWidth="120" />
             <Label fx:id="pageInfoLabel" />
             <Button fx:id="nextPageButton" text="Следующая ►" onAction="#handleNextPage" prefWidth="120" />
+            <Separator orientation="VERTICAL" />
+            <Button fx:id="deleteSelectedButton" text="Удалить выбранное" onAction="#handleDeleteSelected" prefWidth="160" />
          </children>
          <padding>
             <Insets top="5" right="10" bottom="5" left="10" />

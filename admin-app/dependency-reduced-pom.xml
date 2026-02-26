@@ -43,6 +43,25 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.panteleyev</groupId>
+        <artifactId>jpackage-maven-plugin</artifactId>
+        <version>1.6.5</version>
+        <configuration>
+          <name>AdminApp</name>
+          <appVersion>${project.version}</appVersion>
+          <vendor>BRE</vendor>
+          <input>${project.build.directory}</input>
+          <mainJar>${project.artifactId}-${project.version}.jar</mainJar>
+          <mainClass>ru.bre.admin.Launcher</mainClass>
+          <type>APP_IMAGE</type>
+          <destination>${project.build.directory}/dist</destination>
+          <javaOptions>
+            <option>--add-opens=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED</option>
+          </javaOptions>
+          <winConsole>false</winConsole>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <properties>

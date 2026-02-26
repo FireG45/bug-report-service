@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 public class SummaryDto {
+    @JsonProperty("id")
+    private Integer id;
+
     @JsonProperty("title")
     private String title;
 
@@ -45,5 +48,13 @@ public class SummaryDto {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

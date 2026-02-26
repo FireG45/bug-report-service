@@ -3,6 +3,9 @@ package ru.bre.admin.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ReportDto {
+    @JsonProperty("id")
+    private Integer id;
+
     @JsonProperty("title")
     private String title;
 
@@ -55,5 +58,13 @@ public class ReportDto {
 
     public void setLogFile(String logFile) {
         this.logFile = logFile;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

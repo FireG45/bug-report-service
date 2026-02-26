@@ -24,4 +24,10 @@ public interface StorageRepository {
     List<FeedbackDto> getFeedback(int offset, int limit);
 
     List<SummaryDto> getSummary(int offset, int limit);
+
+    int deleteReportById(int id);
+
+    int deleteFeedbackById(int id);
+
+    int deleteSummaryById(int id);
 }

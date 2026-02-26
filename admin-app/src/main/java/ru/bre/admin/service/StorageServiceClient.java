@@ -85,6 +85,21 @@ public class StorageServiceClient {
         this.secret = secret.trim();
     }
 
+    public void deleteById(String entity, int id) throws IOException, InterruptedException {
+        String url = baseUrl + "/v1/api/" + entity + "/" + id + "?secret=" + secret;
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .DELETE()
+                .timeout(Duration.ofSeconds(30))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("HTTP error code: " + response.statusCode() + ", response: " + response.body());
+        }
+    }
+
     public void delete(String entity) throws IOException, InterruptedException {
         String url = baseUrl + "/v1/api/clean/" + entity + "?secret=" + secret;
         HttpRequest request = HttpRequest.newBuilder()

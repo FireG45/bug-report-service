@@ -64,6 +64,9 @@ public class MainController {
     private Button nextPageButton;
 
     @FXML
+    private Button deleteSelectedButton;
+
+    @FXML
     private TableView<Object> dataTable;
 
     private StorageServiceClient client;
@@ -103,6 +106,7 @@ public class MainController {
         reportsDeleteButton.setDisable(true);
         summaryDeleteButton.setDisable(true);
         feedbackDeleteButton.setDisable(true);
+        deleteSelectedButton.setDisable(true);
         frontendReportToggle.setDisable(true);
 
         dataTable.getSelectionModel().setCellSelectionEnabled(true);
@@ -181,6 +185,7 @@ public class MainController {
             reportsDeleteButton.setDisable(false);
             summaryDeleteButton.setDisable(false);
             feedbackDeleteButton.setDisable(false);
+            deleteSelectedButton.setDisable(false);
 
             if (!reportHost.isEmpty()) {
                 frontendReportToggle.setDisable(false);
@@ -232,6 +237,54 @@ public class MainController {
         currentEntityType = "summary";
         currentPage = 0;
         deleteData("summary");
+    }
+
+    @FXML
+    private void handleDeleteSelected() {
+        if (currentHost == null) {
+            showError("Ошибка", "Сначала подключитесь к серверу");
+            return;
+        }
+        if (currentEntityType == null) {
+            showError("Ошибка", "Сначала загрузите данные");
+            return;
+        }
+
+        Object selected = dataTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Ошибка", "Выберите строку для удаления");
+            return;
+        }
+
+        Integer id = getEntityId(selected);
+        if (id == null) {
+            showError("Ошибка", "Не удалось определить ID записи");
+            return;
+        }
+
+        statusLabel.setText("Удаление записи #" + id + "...");
+
+        new Thread(() -> {
+            try {
+                client.deleteById(currentEntityType, id);
+                Platform.runLater(() -> {
+                    dataTable.getItems().remove(selected);
+                    statusLabel.setText("Запись #" + id + " удалена");
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    statusLabel.setText("Ошибка удаления");
+                    showError("Ошибка", "Не удалось удалить запись: " + e.getMessage());
+                });
+            }
+        }).start();
+    }
+
+    private Integer getEntityId(Object entity) {
+        if (entity instanceof ReportDto dto) return dto.getId();
+        if (entity instanceof FeedbackDto dto) return dto.getId();
+        if (entity instanceof SummaryDto dto) return dto.getId();
+        return null;
     }
 
     @FXML
