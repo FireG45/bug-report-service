@@ -196,7 +196,7 @@ services:
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
-      CHECK_INTERVAL: 30
+      CHECK_INTERVAL: 300
     restart: unless-stopped
 
 volumes:
