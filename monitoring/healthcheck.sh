@@ -7,9 +7,9 @@ CHECK_INTERVAL="${CHECK_INTERVAL:-30}"
 
 # Services: name|url
 SERVICES=(
-  "report-service|http://report-service:8080/actuator/health"
-  "storage-service|http://storage-service:8080/actuator/health"
-  "summary-service|http://summary-service:8080/actuator/health"
+  "report-service|http://report-service:8080/healthcheck"
+  "storage-service|http://storage-service:8080/v1/api/healthcheck"
+  "summary-service|http://summary-service:8080/api/summary/healthcheck"
   "kafka|kafka:9092"
   "postgres|postgres:5432"
   "minio|http://minio:9000/minio/health/live"

@@ -68,4 +68,9 @@ public class ReportController {
     public ResponseEntity<Boolean> getFrontendReport() {
         return ResponseEntity.ok(frontendReportEnabled);
     }
+
+    @GetMapping("/healthcheck")
+    public ResponseEntity<String> healthcheck() {
+        return ResponseEntity.ok("OK");
+    }
 }

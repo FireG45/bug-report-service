@@ -40,6 +40,11 @@ public class StorageController {
         return serverSecret.equals(secret) ? ResponseEntity.ok(storageService.getSummary(offset, limit)) : ResponseEntity.badRequest().build();
     }
 
+    @GetMapping("/healthcheck")
+    public ResponseEntity<String> healthcheck() {
+        return ResponseEntity.ok("OK");
+    }
+
     @DeleteMapping("/clean/{entity}")
     public ResponseEntity<String> clean(@PathVariable String entity, @RequestParam String secret) {
         if (!serverSecret.equals(secret)) {

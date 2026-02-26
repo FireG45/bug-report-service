@@ -1,6 +1,7 @@
 package ru.bre.storage.controller;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.bre.storage.entity.Feedback;
 import ru.bre.storage.repository.FeedbackRepository;
@@ -18,6 +19,11 @@ public class SummaryController {
 
     public SummaryController(SummaryService summaryService) {
         this.summaryService = summaryService;
+    }
+
+    @GetMapping("/healthcheck")
+    public ResponseEntity<String> healthcheck() {
+        return ResponseEntity.ok("OK");
     }
 
     @GetMapping("/generate")
