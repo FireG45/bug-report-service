@@ -7,12 +7,15 @@ import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
+import ru.bre.admin.AdminApp;
 import ru.bre.admin.model.FeedbackDto;
 import ru.bre.admin.model.ReportDto;
 import ru.bre.admin.model.SummaryDto;
 import ru.bre.admin.service.StorageServiceClient;
 import ru.bre.admin.util.ConfigManager;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -220,6 +223,7 @@ public class MainController {
 
     @FXML
     private void handleDeleteReports() {
+        if (!showConfirmation("Удаление Reports", "Вы уверены, что хотите удалить ВСЕ reports?")) return;
         currentEntityType = "report";
         currentPage = 0;
         deleteData("report");
@@ -227,6 +231,7 @@ public class MainController {
 
     @FXML
     private void handleDeleteFeedback() {
+        if (!showConfirmation("Удаление Feedback", "Вы уверены, что хотите удалить ВСЕ feedback?")) return;
         currentEntityType = "feedback";
         currentPage = 0;
         deleteData("feedback");
@@ -234,6 +239,7 @@ public class MainController {
 
     @FXML
     private void handleDeleteSummary() {
+        if (!showConfirmation("Удаление Summary", "Вы уверены, что хотите удалить ВСЕ summary?")) return;
         currentEntityType = "summary";
         currentPage = 0;
         deleteData("summary");
@@ -261,6 +267,8 @@ public class MainController {
             showError("Ошибка", "Не удалось определить ID записи");
             return;
         }
+
+        if (!showConfirmation("Удаление записи", "Удалить запись #" + id + "?")) return;
 
         statusLabel.setText("Удаление записи #" + id + "...");
 
@@ -591,7 +599,16 @@ public class MainController {
 
         host = host.replaceAll(":\\d+$", "");
 
-        return host + ":9000/" + bucket + "/" + fileName;
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
+        return host + ":9000/" + bucket + "/" + encodedFileName;
+    }
+
+    private boolean showConfirmation(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        return alert.showAndWait().filter(r -> r == ButtonType.OK).isPresent();
     }
 
     private void showError(String title, String message) {

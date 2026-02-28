@@ -3,7 +3,8 @@
 # === Configuration ===
 BOT_TOKEN="${TELEGRAM_BOT_TOKEN}"
 CHAT_ID="${TELEGRAM_CHAT_ID}"
-CHECK_INTERVAL="${CHECK_INTERVAL:-30}"
+CHECK_INTERVAL_MIN="${CHECK_INTERVAL:-3}"
+CHECK_INTERVAL=$((CHECK_INTERVAL_MIN * 60))
 
 # Services: name|url
 SERVICES=(
@@ -52,14 +53,14 @@ check_service() {
 }
 
 echo "=== Health Check Monitor ==="
-echo "Interval: ${CHECK_INTERVAL}s"
+echo "Interval: ${CHECK_INTERVAL_MIN}m"
 echo "Services: ${#SERVICES[@]}"
 echo ""
 
 # Send startup message
 send_telegram "$(cat <<EOF
 <b>🟢 Health Monitor started</b>
-Checking ${#SERVICES[@]} services every ${CHECK_INTERVAL}s
+Checking ${#SERVICES[@]} services every ${CHECK_INTERVAL_MIN}m
 EOF
 )"
 
