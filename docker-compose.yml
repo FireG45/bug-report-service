@@ -192,6 +192,10 @@ services:
       - summary-service
     ports:
       - "8084:8080"
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      CHECK_INTERVAL_MS: 120000
     restart: unless-stopped
 
 volumes:
