@@ -64,6 +64,36 @@
          </padding>
       </HBox>
 
+      <Separator />
+
+      <HBox spacing="15" VBox.vgrow="NEVER" alignment="CENTER_LEFT">
+         <children>
+            <Button text="Проверить статусы" onAction="#handleCheckStatuses" prefWidth="160" />
+            <Separator orientation="VERTICAL" />
+            <Label fx:id="storageStatusLabel" text="Storage: ?" styleClass="status-label" />
+            <Label fx:id="reportStatusLabel" text="Report: ?" styleClass="status-label" />
+            <Label fx:id="summaryStatusLabel" text="Summary: ?" styleClass="status-label" />
+            <Label fx:id="frontendStatusLabel" text="Frontend: ?" styleClass="status-label" />
+         </children>
+         <padding>
+            <Insets top="10" right="10" bottom="10" left="10" />
+         </padding>
+      </HBox>
+
+      <HBox spacing="15" VBox.vgrow="NEVER" alignment="CENTER_LEFT">
+         <children>
+            <Label fx:id="minioStatusLabel" text="MinIO: ?" styleClass="status-label" />
+            <Label fx:id="kafkaUiStatusLabel" text="Kafka UI: ?" styleClass="status-label" />
+            <Label fx:id="kafkaStatusLabel" text="Kafka: ?" styleClass="status-label" />
+            <Label fx:id="postgresStatusLabel" text="Postgres: ?" styleClass="status-label" />
+         </children>
+         <padding>
+            <Insets top="0" right="10" bottom="10" left="10" />
+         </padding>
+      </HBox>
+
+      <Separator />
+
       <HBox spacing="10" VBox.vgrow="NEVER">
          <children>
             <Button fx:id="prevPageButton" text="◄ Предыдущая" onAction="#handlePrevPage" prefWidth="120" />

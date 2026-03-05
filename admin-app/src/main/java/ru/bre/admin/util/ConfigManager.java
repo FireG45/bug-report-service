@@ -1,13 +1,29 @@
 package ru.bre.admin.util;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class ConfigManager {
+    private static final String CONFIG_DIR = "BugReportAdmin";
     private static final String CONFIG_FILE = "admin-app.properties";
     private static final String HOST_KEY = "last.host";
     private static final String SECRET_KEY = "secret";
     private static final String REPORT_HOST_KEY = "report.host";
+
+    private static Path getConfigPath() {
+        String documents = System.getProperty("user.home") + File.separator + "Documents";
+        Path dir = Path.of(documents, CONFIG_DIR);
+        if (!Files.exists(dir)) {
+            try {
+                Files.createDirectories(dir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return dir.resolve(CONFIG_FILE);
+    }
 
     public static void saveConfig(String host, String secret, String reportHost) {
         Properties props = new Properties();
@@ -15,42 +31,34 @@ public class ConfigManager {
         props.setProperty(SECRET_KEY, secret);
         props.setProperty(REPORT_HOST_KEY, reportHost);
 
-        try (FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
+        try (OutputStream out = Files.newOutputStream(getConfigPath())) {
             props.store(out, "Admin App Configuration");
         } catch (IOException e) {
-            // Игнорируем ошибки сохранения
             e.printStackTrace();
         }
     }
 
     public static String loadHost() {
-        Properties props = new Properties();
-        
-        try (FileInputStream in = new FileInputStream(CONFIG_FILE)) {
-            props.load(in);
-            return props.getProperty(HOST_KEY, "");
-        } catch (IOException e) {
-            return "";
-        }
+        return loadProperty(HOST_KEY);
     }
 
     public static String loadSecret() {
-        Properties props = new Properties();
-
-        try (FileInputStream in = new FileInputStream(CONFIG_FILE)) {
-            props.load(in);
-            return props.getProperty(SECRET_KEY, "");
-        } catch (IOException e) {
-            return "";
-        }
+        return loadProperty(SECRET_KEY);
     }
 
     public static String loadReportHost() {
-        Properties props = new Properties();
+        return loadProperty(REPORT_HOST_KEY);
+    }
 
-        try (FileInputStream in = new FileInputStream(CONFIG_FILE)) {
+    private static String loadProperty(String key) {
+        Path path = getConfigPath();
+        if (!Files.exists(path)) {
+            return "";
+        }
+        Properties props = new Properties();
+        try (InputStream in = Files.newInputStream(path)) {
             props.load(in);
-            return props.getProperty(REPORT_HOST_KEY, "");
+            return props.getProperty(key, "");
         } catch (IOException e) {
             return "";
         }

@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class MainController {
     @FXML
@@ -59,6 +60,30 @@ public class MainController {
 
     @FXML
     private Label pageInfoLabel;
+
+    @FXML
+    private Label storageStatusLabel;
+
+    @FXML
+    private Label reportStatusLabel;
+
+    @FXML
+    private Label summaryStatusLabel;
+
+    @FXML
+    private Label frontendStatusLabel;
+
+    @FXML
+    private Label minioStatusLabel;
+
+    @FXML
+    private Label kafkaUiStatusLabel;
+
+    @FXML
+    private Label kafkaStatusLabel;
+
+    @FXML
+    private Label postgresStatusLabel;
 
     @FXML
     private Button prevPageButton;
@@ -339,6 +364,97 @@ public class MainController {
 
     private void updateToggleText(boolean enabled) {
         frontendReportToggle.setText("Frontend Report: " + (enabled ? "ON" : "OFF"));
+    }
+
+    @FXML
+    private void handleCheckStatuses() {
+        String host = hostField.getText().trim();
+
+        if (host.isEmpty()) {
+            showError("Ошибка", "Укажите хост");
+            return;
+        }
+
+        if (!host.startsWith("http://") && !host.startsWith("https://")) {
+            host = "http://" + host;
+        }
+
+        // Reset all labels
+        Label[] allLabels = {storageStatusLabel, reportStatusLabel, summaryStatusLabel,
+                frontendStatusLabel, minioStatusLabel, kafkaUiStatusLabel, kafkaStatusLabel, postgresStatusLabel};
+        String[] allNames = {"Storage", "Report", "Summary", "Frontend", "MinIO", "Kafka UI", "Kafka", "Postgres"};
+        for (int i = 0; i < allLabels.length; i++) {
+            allLabels[i].setText(allNames[i] + ": ...");
+            allLabels[i].setStyle("-fx-text-fill: #888888;");
+        }
+
+        statusLabel.setText("Проверка статусов...");
+
+        String bareHost = host.replaceAll(":\\d+$", "");
+        String healthcheckUrl = bareHost + ":8084";
+
+        new Thread(() -> {
+            try {
+                List<Map<String, String>> statuses = client.getServiceStatuses(healthcheckUrl);
+
+                // Маппинг имён сервисов на UI-лейблы
+                Map<String, Label> labelMap = Map.of(
+                        "report-service", reportStatusLabel,
+                        "storage-service", storageStatusLabel,
+                        "summary-service", summaryStatusLabel,
+                        "minio", minioStatusLabel,
+                        "kafka", kafkaStatusLabel,
+                        "postgres", postgresStatusLabel
+                );
+
+                Map<String, String> displayNameMap = Map.of(
+                        "report-service", "Report",
+                        "storage-service", "Storage",
+                        "summary-service", "Summary",
+                        "minio", "MinIO",
+                        "kafka", "Kafka",
+                        "postgres", "Postgres"
+                );
+
+                Platform.runLater(() -> {
+                    for (Map<String, String> svc : statuses) {
+                        String name = svc.get("name");
+                        String status = svc.get("status");
+                        Label label = labelMap.get(name);
+                        if (label != null) {
+                            String displayName = displayNameMap.getOrDefault(name, name);
+                            updateStatusLabel(label, displayName, true, "up".equals(status));
+                        }
+                    }
+
+                    // Frontend и Kafka UI не проверяются healthcheck-service, помечаем N/A
+                    updateStatusLabel(frontendStatusLabel, "Frontend", false, false);
+                    updateStatusLabel(kafkaUiStatusLabel, "Kafka UI", false, false);
+
+                    statusLabel.setText("Статусы обновлены");
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    statusLabel.setText("Ошибка получения статусов: " + e.getMessage());
+                    for (Label label : allLabels) {
+                        label.setStyle("-fx-text-fill: #888888;");
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void updateStatusLabel(Label label, String name, boolean configured, boolean online) {
+        if (!configured) {
+            label.setText(name + ": N/A");
+            label.setStyle("-fx-text-fill: #888888;");
+        } else if (online) {
+            label.setText(name + ": Online");
+            label.setStyle("-fx-text-fill: #4CAF50; -fx-font-weight: bold;");
+        } else {
+            label.setText(name + ": Offline");
+            label.setStyle("-fx-text-fill: #f44336; -fx-font-weight: bold;");
+        }
     }
 
     @FXML

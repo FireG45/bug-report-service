@@ -11,6 +11,8 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -18,6 +20,7 @@ import java.net.http.HttpResponse;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 public class StorageServiceClient {
     private final HttpClient httpClient;
@@ -166,6 +169,30 @@ public class StorageServiceClient {
         return objectMapper.readValue(response.body(), new TypeReference<List<SummaryDto>>() {});
     }
 
+    public boolean checkHealth(String url) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .timeout(Duration.ofSeconds(5))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.statusCode() >= 200 && response.statusCode() < 300;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean checkTcp(String host, int port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), 5000);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean getFrontendReport() throws IOException, InterruptedException {
         String url = reportBaseUrl + "/get-frontend-report";
         HttpRequest request = HttpRequest.newBuilder()
@@ -198,5 +225,21 @@ public class StorageServiceClient {
         }
 
         return response.body();
+    }
+
+    public List<Map<String, String>> getServiceStatuses(String healthcheckUrl) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(healthcheckUrl + "/api/healthcheck/statuses"))
+                .GET()
+                .timeout(Duration.ofSeconds(15))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("HTTP error code: " + response.statusCode() + ", response: " + response.body());
+        }
+
+        return objectMapper.readValue(response.body(), new TypeReference<List<Map<String, String>>>() {});
     }
 }
