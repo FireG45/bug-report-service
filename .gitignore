@@ -33,5 +33,6 @@ build/
 ### VS Code ###
 .vscode/
 
-./.env
+.env_prod
 .claude/
+nul
