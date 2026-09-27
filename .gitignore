@@ -34,5 +34,6 @@ build/
 .vscode/
 
 .env_prod
+.env
 .claude/
 nul
