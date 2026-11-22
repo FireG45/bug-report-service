@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,6 +19,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@Order(1)
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final Cache<String, Bucket> cache = Caffeine.newBuilder()
@@ -34,9 +36,21 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String ip = request.getRemoteAddr();
         String path = request.getRequestURI();
 
-        Bucket bucket = isToggleEndpoint(path)
-                ? resolveToggleBucket(ip)
-                : resolveBucket(ip);
+        if (path.startsWith("/healthcheck")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        Bucket bucket;
+        if (isToggleEndpoint(path)) {
+            bucket = resolveToggleBucket(ip);
+        } else if (isBatchEndpoint(path)) {
+            bucket = resolveBatchBucket(ip);
+        } else if (isAuthEndpoint(path)) {
+            bucket = resolveAuthBucket(ip);
+        } else {
+            bucket = resolveBucket(ip);
+        }
 
         if (bucket.tryConsume(1)) {
             filterChain.doFilter(request, response);
@@ -50,6 +64,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return path.startsWith("/set-frontend-report") || path.startsWith("/get-frontend-report");
     }
 
+    private boolean isBatchEndpoint(String path) {
+        return path.startsWith("/telemetry/batches");
+    }
+
+    private boolean isAuthEndpoint(String path) {
+        return path.startsWith("/telemetry/auth/steam");
+    }
+
     private Bucket createNewBucket() {
         Bandwidth limit = Bandwidth.classic(3, Refill.intervally(1, Duration.ofMinutes(1)));
         return Bucket.builder().addLimit(limit).build();
@@ -60,11 +82,29 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return Bucket.builder().addLimit(limit).build();
     }
 
+    private Bucket createBatchBucket() {
+        Bandwidth limit = Bandwidth.classic(60, Refill.intervally(30, Duration.ofMinutes(1)));
+        return Bucket.builder().addLimit(limit).build();
+    }
+
+    private Bucket createAuthBucket() {
+        Bandwidth limit = Bandwidth.classic(12, Refill.intervally(6, Duration.ofMinutes(1)));
+        return Bucket.builder().addLimit(limit).build();
+    }
+
     private Bucket resolveBucket(String ip) {
         return cache.get(ip, k -> createNewBucket());
     }
 
     private Bucket resolveToggleBucket(String ip) {
         return cache.get("toggle:" + ip, k -> createToggleBucket());
+    }
+
+    private Bucket resolveBatchBucket(String ip) {
+        return cache.get("batch:" + ip, k -> createBatchBucket());
+    }
+
+    private Bucket resolveAuthBucket(String ip) {
+        return cache.get("auth:" + ip, k -> createAuthBucket());
     }
 }

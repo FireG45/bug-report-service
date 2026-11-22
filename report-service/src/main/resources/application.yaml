@@ -7,6 +7,14 @@ spring:
     port: 465
     username: ${EMAIL_USERNAME}
     password: ${EMAIL_PASSWORD}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/reportdb}
+    username: ${DB_USERNAME:report}
+    password: ${DB_PASSWORD:report}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
   servlet:
     multipart:
       location: ${java.io.tmpdir}
@@ -18,5 +26,9 @@ mail:
 
 feature-toggle:
   frontend-report: false
+
+telemetry:
+  steam-auth:
+    stub-enabled: ${TELEMETRY_STEAM_AUTH_STUB:true}
 
 server-secret: ${SERVER_SECRET}
