@@ -8,10 +8,11 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.bre.storage.config.RateLimitFilter;
-import ru.bre.storage.dto.FeedbackEntity;
 import ru.bre.storage.dto.ReportEntity;
-import ru.bre.storage.service.ReportServiceFallbackHandler;
+import ru.bre.storage.service.ReportService;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -19,16 +20,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ReportControllerTest {
 
     @Mock
-    private ReportServiceFallbackHandler reportServiceHandler;
-
-    private ReportController reportController;
+    private ReportService reportService;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        reportController = new ReportController(reportServiceHandler, true);
+        ReportController reportController = new ReportController(reportService, true);
         RateLimitFilter rateLimitFilter = new RateLimitFilter();
         mockMvc = MockMvcBuilders.standaloneSetup(reportController)
                 .addFilters(rateLimitFilter)
@@ -47,18 +46,13 @@ class ReportControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("OK!"));
 
-        verify(reportServiceHandler, times(1)).handle(any(ReportEntity.class));
-    }
+        ArgumentCaptor<ReportEntity> captor = ArgumentCaptor.forClass(ReportEntity.class);
+        verify(reportService, times(1)).report(captor.capture());
 
-    @Test
-    void testFeedbackSendSuccess() throws Exception {
-        mockMvc.perform(multipart("/feedback-send")
-                        .param("title", "Test Feedback")
-                        .param("text", "Feedback text"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("OK!"));
-
-        verify(reportServiceHandler, times(1)).handle(any(FeedbackEntity.class));
+        ReportEntity entity = captor.getValue();
+        assertEquals("Test Report", entity.getTitle());
+        assertEquals("Some text", entity.getText());
+        assertNotNull(entity.getImageFile());
     }
 
     @Test

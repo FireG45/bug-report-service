@@ -17,34 +17,6 @@ mail:
   from: ${EMAIL_USERNAME}@yandex.ru
 
 feature-toggle:
-    frontend-report: false
+  frontend-report: false
 
 server-secret: ${SERVER_SECRET}
-
-kafka:
-  config:
-    bootstrap:
-      servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    security:
-      protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
-    sasl:
-      mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
-    login:
-      module: ${KAFKA_LOGIN_MODULE:org.apache.kafka.common.security.plain.PlainLoginModule}
-
-    username: ${KAFKA_USERNAME:user}
-    password: ${KAFKA_PASSWORD:pass}
-
-  report:
-    topic: ${KAFKA_REPORT_TOPIC:bre.report.message}
-  feedback:
-    topic: ${KAFKA_FEEDBACK_TOPIC:bre.feedback.message}
-
-minio:
-  url: ${MINIO_URL:http://localhost:9000}
-  access:
-    key: ${MINIO_ACCESS_KEY:minioadmin}
-    secret: ${MINIO_ACCESS_SECRET:minioadmin}
-  bucket:
-    screenshot: ${MINIO_BUCKET_SCREENSHOT:screenshots}
-    log: ${MINIO_BUCKET_LOG:logs}

@@ -9,11 +9,6 @@ CHECK_INTERVAL=$((CHECK_INTERVAL_MIN * 60))
 # Services: name|url
 SERVICES=(
   "report-service|http://report-service:8080/healthcheck"
-  "storage-service|http://storage-service:8080/v1/api/healthcheck"
-  "summary-service|http://summary-service:8080/api/summary/healthcheck"
-  "kafka|kafka:9092"
-  "postgres|postgres:5432"
-  "minio|http://minio:9000/minio/health/live"
 )
 
 # Track previous status to avoid alert spam
@@ -34,24 +29,6 @@ check_http() {
   [ "$http_code" = "200" ]
 }
 
-check_tcp() {
-  local host_port="$1"
-  local host="${host_port%%:*}"
-  local port="${host_port##*:}"
-  timeout 5 bash -c "echo > /dev/tcp/${host}/${port}" 2>/dev/null
-}
-
-check_service() {
-  local name="$1"
-  local target="$2"
-
-  if [[ "$target" == http* ]]; then
-    check_http "$target"
-  else
-    check_tcp "$target"
-  fi
-}
-
 echo "=== Health Check Monitor ==="
 echo "Interval: ${CHECK_INTERVAL_MIN}m"
 echo "Services: ${#SERVICES[@]}"
@@ -68,7 +45,7 @@ while true; do
   for entry in "${SERVICES[@]}"; do
     IFS='|' read -r name target <<< "$entry"
 
-    if check_service "$name" "$target"; then
+    if check_http "$target"; then
       status="up"
     else
       status="down"

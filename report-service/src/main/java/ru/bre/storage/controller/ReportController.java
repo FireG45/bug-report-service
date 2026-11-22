@@ -1,22 +1,19 @@
 package ru.bre.storage.controller;
 
-import jakarta.websocket.server.PathParam;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.bre.storage.dto.FeedbackEntity;
 import ru.bre.storage.dto.ReportEntity;
-import ru.bre.storage.service.ReportServiceFallbackHandler;
+import ru.bre.storage.service.ReportService;
 
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000", "https://www.mrak-bre.ru"})
 public class ReportController {
 
-    private final ReportServiceFallbackHandler reportServiceHandler;
+    private final ReportService reportService;
 
     private boolean frontendReportEnabled;
 
@@ -24,30 +21,21 @@ public class ReportController {
     private String serverSecret;
 
     @Autowired
-    public ReportController(ReportServiceFallbackHandler reportServiceHandler,
+    public ReportController(ReportService reportService,
                             @Value("${feature-toggle.frontend-report:true}")
                             boolean frontendReportEnabled) {
-        this.reportServiceHandler = reportServiceHandler;
+        this.reportService = reportService;
         this.frontendReportEnabled = frontendReportEnabled;
     }
 
     @PostMapping("/report-send")
-    public ResponseEntity<String> feedback(
+    public ResponseEntity<String> report(
             @RequestParam("title") String title,
             @RequestParam("text") String text,
             @RequestParam("imageFile") MultipartFile imageFile,
             @RequestParam(value = "logFile", required = false) MultipartFile logFile
     ) {
-        reportServiceHandler.handle(new ReportEntity(title, text, imageFile, logFile));
-        return ResponseEntity.ok("OK!");
-    }
-
-    @PostMapping("/feedback-send")
-    public ResponseEntity<String> feedback(
-            @RequestParam("title") String title,
-            @RequestParam("text") String text
-    ) {
-        reportServiceHandler.handle(new FeedbackEntity(title, text));
+        reportService.report(new ReportEntity(title, text, imageFile, logFile));
         return ResponseEntity.ok("OK!");
     }
 
