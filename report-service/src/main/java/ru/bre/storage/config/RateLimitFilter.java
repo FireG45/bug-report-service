@@ -43,9 +43,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         Bucket bucket;
-        if (isToggleEndpoint(path)) {
-            bucket = resolveToggleBucket(ip);
-        } else if (isBatchEndpoint(path)) {
+        if (isBatchEndpoint(path)) {
             bucket = resolveBatchBucket(ip);
         } else if (isAuthEndpoint(path)) {
             bucket = resolveAuthBucket(ip);
@@ -67,10 +65,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return Math.max(1, (nanos + 999_999_999) / 1_000_000_000);
     }
 
-    private boolean isToggleEndpoint(String path) {
-        return path.startsWith("/set-frontend-report") || path.startsWith("/get-frontend-report");
-    }
-
     private boolean isBatchEndpoint(String path) {
         return path.startsWith("/telemetry/batches");
     }
@@ -81,11 +75,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private Bucket createNewBucket() {
         Bandwidth limit = Bandwidth.classic(3, Refill.intervally(1, Duration.ofMinutes(1)));
-        return Bucket.builder().addLimit(limit).build();
-    }
-
-    private Bucket createToggleBucket() {
-        Bandwidth limit = Bandwidth.classic(20, Refill.intervally(10, Duration.ofMinutes(1)));
         return Bucket.builder().addLimit(limit).build();
     }
 
@@ -101,10 +90,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private Bucket resolveBucket(String ip) {
         return cache.get(ip, k -> createNewBucket());
-    }
-
-    private Bucket resolveToggleBucket(String ip) {
-        return cache.get("toggle:" + ip, k -> createToggleBucket());
     }
 
     private Bucket resolveBatchBucket(String ip) {

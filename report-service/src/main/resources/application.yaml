@@ -1,3 +1,6 @@
+server:
+  forward-headers-strategy: native
+
 spring:
   application:
     name: bug-report-service
@@ -24,9 +27,6 @@ spring:
 mail:
   from: ${EMAIL_USERNAME}@yandex.ru
 
-feature-toggle:
-  frontend-report: false
-
 telemetry:
   steam-auth:
     app-id: ${STEAM_APP_ID:5536570}
@@ -37,5 +37,3 @@ telemetry:
     read-timeout: 5s
     token-ttl: 1h
   account-rate-limit-per-minute: ${TELEMETRY_ACCOUNT_RATE_LIMIT:100}
-
-server-secret: ${SERVER_SECRET}

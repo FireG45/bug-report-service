@@ -11,7 +11,7 @@
 * `POST /telemetry/batches` — приём пачки событий с Bearer-токеном, дедупликация по `event_id`,
   к событиям добавляется `player_id` аккаунта.
 * Ограничение частоты запросов (Bucket4j): 3 запроса в минуту с одного IP, при превышении — `429`.
-* Feature-toggle `frontend-report`: `GET /get-frontend-report`, `POST /set-frontend-report` (по секрету).
+* `GET /get-frontend-report` — всегда возвращает `false` (feature-toggle удалён).
 * `GET /healthcheck` — проверка живости сервиса.
 
 ## Локальный запуск
@@ -21,7 +21,7 @@
 
 1. Склонируйте этот репозиторий и [`mrak-main-page`](https://github.com/FireG45/mrak-main-page) в одну папку.
 2. В корне этого репозитория скопируйте `.env.example` в `.env` и заполните `EMAIL_USERNAME`,
-   `EMAIL_PASSWORD` (SMTP Яндекса), `SERVER_SECRET` и `STEAM_PUBLISHER_KEY` (Publisher Web API Key
+   `EMAIL_PASSWORD` (SMTP Яндекса) и `STEAM_PUBLISHER_KEY` (Publisher Web API Key
    с доступом к AppID плейтеста; хранится только на сервере). Без ключа обмен билетов отвечает `503`.
 3. Запустите `docker compose up --build` из корня репозитория.
 

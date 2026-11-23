@@ -3,20 +3,25 @@ package ru.bre.storage.util;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 
-public class ReportFileUtil {
-    public static File convertMultipartFileToFile(MultipartFile file) {
-        try {
-            File convFile = File.createTempFile("temp_" + file.getName(), file.getOriginalFilename().split("\\.")[1]);
-            FileOutputStream fos = new FileOutputStream(convFile);
-            fos.write(file.getBytes());
-            fos.close();
-            return convFile;
+public final class ReportFileUtil {
+
+    private ReportFileUtil() {
+    }
+
+    public static File copyToTempFile(MultipartFile file) throws IOException {
+        File tempFile = Files.createTempFile("upload_", ".tmp").toFile();
+        try (InputStream in = file.getInputStream();
+             OutputStream out = Files.newOutputStream(tempFile.toPath())) {
+            in.transferTo(out);
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            Files.deleteIfExists(tempFile.toPath());
+            throw e;
         }
+        return tempFile;
     }
 }

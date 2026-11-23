@@ -30,12 +30,21 @@ services:
     build: ./report-service
     container_name: report-service
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     env_file:
       - .env
     depends_on:
       postgres:
         condition: service_healthy
+    mem_limit: 1g
+    pids_limit: 256
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
 volumes:
   report-postgres-data:

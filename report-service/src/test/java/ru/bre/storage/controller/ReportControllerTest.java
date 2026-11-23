@@ -2,7 +2,9 @@ package ru.bre.storage.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -13,9 +15,13 @@ import ru.bre.storage.service.ReportService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class ReportControllerTest {
 
@@ -27,10 +33,8 @@ class ReportControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        ReportController reportController = new ReportController(reportService, true);
-        RateLimitFilter rateLimitFilter = new RateLimitFilter();
-        mockMvc = MockMvcBuilders.standaloneSetup(reportController)
-                .addFilters(rateLimitFilter)
+        mockMvc = MockMvcBuilders.standaloneSetup(new ReportController(reportService))
+                .addFilters(new RateLimitFilter())
                 .build();
     }
 
@@ -60,7 +64,7 @@ class ReportControllerTest {
         MockMultipartFile imageFile = new MockMultipartFile("imageFile", "image.png",
                 MediaType.IMAGE_PNG_VALUE, "dummy image".getBytes());
 
-        for (int i = 0; i < 3 ; i++) {
+        for (int i = 0; i < 3; i++) {
             mockMvc.perform(multipart("/report-send")
                             .file(imageFile)
                             .param("title", "R" + i)
@@ -75,4 +79,24 @@ class ReportControllerTest {
                 .andExpect(status().isTooManyRequests());
     }
 
+    @Test
+    void testRejectTooLongTitle() throws Exception {
+        MockMultipartFile imageFile = new MockMultipartFile("imageFile", "image.png",
+                MediaType.IMAGE_PNG_VALUE, "dummy image".getBytes());
+
+        mockMvc.perform(multipart("/report-send")
+                        .file(imageFile)
+                        .param("title", "x".repeat(201))
+                        .param("text", "Some text"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(reportService);
+    }
+
+    @Test
+    void testFrontendReportToggleAlwaysFalse() throws Exception {
+        mockMvc.perform(get("/get-frontend-report"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
 }
