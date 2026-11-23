@@ -7,12 +7,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.bre.storage.config.TelemetryAuthFilter;
 import ru.bre.storage.dto.TelemetryBatchRequest;
 import ru.bre.storage.exception.BatchRejectedException;
 import ru.bre.storage.exception.InvalidEventsException;
 import ru.bre.storage.service.TelemetryService;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class TelemetryController {
@@ -34,7 +36,8 @@ public class TelemetryController {
             return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                     .body(Map.of("error", "Batch body exceeds 128 KiB"));
         }
-        telemetryService.acceptBatch(batch);
+        UUID playerId = (UUID) request.getAttribute(TelemetryAuthFilter.PLAYER_ID_ATTRIBUTE);
+        telemetryService.acceptBatch(batch, playerId);
         return ResponseEntity.ok(Map.of("ok", true));
     }
 

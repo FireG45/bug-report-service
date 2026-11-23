@@ -33,7 +33,7 @@ public class TelemetryService {
     }
 
     @Transactional
-    public void acceptBatch(TelemetryBatchRequest batch) {
+    public void acceptBatch(TelemetryBatchRequest batch, UUID playerId) {
         List<TelemetryEventPayload> events = validateEnvelope(batch);
         List<Integer> invalidIndices = findInvalidIndices(events);
         if (!invalidIndices.isEmpty()) {
@@ -44,7 +44,7 @@ public class TelemetryService {
                 event.setProperties(objectMapper.createObjectNode());
             }
         });
-        repository.insertIgnore(batch.getSchemaVersion(), toJson(events));
+        repository.insertIgnore(batch.getSchemaVersion(), toJson(events), playerId.toString());
     }
 
     public Optional<LastClosedReport> lastClosedReport(UUID installationId) {

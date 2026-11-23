@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -56,8 +57,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            response.setHeader(HttpHeaders.RETRY_AFTER, String.valueOf(retryAfterSeconds(bucket)));
             response.getWriter().write("Too many requests. Try again later.");
         }
+    }
+
+    private long retryAfterSeconds(Bucket bucket) {
+        long nanos = bucket.estimateAbilityToConsume(1).getNanosToWaitForRefill();
+        return Math.max(1, (nanos + 999_999_999) / 1_000_000_000);
     }
 
     private boolean isToggleEndpoint(String path) {

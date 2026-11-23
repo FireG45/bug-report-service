@@ -29,6 +29,13 @@ feature-toggle:
 
 telemetry:
   steam-auth:
-    stub-enabled: ${TELEMETRY_STEAM_AUTH_STUB:true}
+    app-id: ${STEAM_APP_ID:5536570}
+    identity: ${STEAM_TICKET_IDENTITY:mrak-telemetry}
+    publisher-key: ${STEAM_PUBLISHER_KEY:}
+    base-url: ${STEAM_WEB_API_URL:https://partner.steam-api.com}
+    connect-timeout: 2s
+    read-timeout: 5s
+    token-ttl: 1h
+  account-rate-limit-per-minute: ${TELEMETRY_ACCOUNT_RATE_LIMIT:100}
 
 server-secret: ${SERVER_SECRET}

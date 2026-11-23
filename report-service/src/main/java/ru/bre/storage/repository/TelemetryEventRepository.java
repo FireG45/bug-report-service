@@ -14,7 +14,7 @@ public interface TelemetryEventRepository extends JpaRepository<TelemetryEvent, 
 
     String INSERT_EVENTS_IGNORE_QUERY = """
             INSERT INTO telemetry_events (event_id, schema_version, name, occurred_at, received_at, build_id,
-                installation_id, session_id, run_id, attempt_id, event_seq, level_id, mission_id,
+                installation_id, player_id, session_id, run_id, attempt_id, event_seq, level_id, mission_id,
                 active_elapsed_ms, x, y, z, properties)
             SELECT CAST(e ->> 'event_id' AS uuid),
                    :schemaVersion,
@@ -23,6 +23,7 @@ public interface TelemetryEventRepository extends JpaRepository<TelemetryEvent, 
                    now(),
                    e ->> 'build_id',
                    CAST(e ->> 'installation_id' AS uuid),
+                   CAST(:playerId AS uuid),
                    CAST(e ->> 'session_id' AS uuid),
                    CAST(e ->> 'run_id' AS uuid),
                    CAST(e ->> 'attempt_id' AS uuid),
@@ -82,7 +83,9 @@ public interface TelemetryEventRepository extends JpaRepository<TelemetryEvent, 
 
     @Modifying
     @Query(value = INSERT_EVENTS_IGNORE_QUERY, nativeQuery = true)
-    int insertIgnore(@Param("schemaVersion") int schemaVersion, @Param("events") String events);
+    int insertIgnore(@Param("schemaVersion") int schemaVersion,
+                     @Param("events") String events,
+                     @Param("playerId") String playerId);
 
     @Query(value = LAST_CLOSED_REPORT_QUERY, nativeQuery = true)
     Optional<LastClosedReport> findLastClosedReport(@Param("installationId") UUID installationId);

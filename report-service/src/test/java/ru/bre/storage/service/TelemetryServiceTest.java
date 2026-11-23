@@ -23,6 +23,8 @@ import static org.mockito.Mockito.verify;
 
 class TelemetryServiceTest {
 
+    private static final UUID PLAYER_ID = UUID.fromString("9f1f6c1e-4d4e-4d43-9d20-6a2f1f0a4b7c");
+
     @Mock
     private TelemetryEventRepository repository;
 
@@ -38,14 +40,14 @@ class TelemetryServiceTest {
     void testRejectUnknownSchemaVersion() {
         TelemetryBatchRequest batch = new TelemetryBatchRequest(2, List.of(validEvent()));
 
-        assertThrows(BatchRejectedException.class, () -> telemetryService.acceptBatch(batch));
+        assertThrows(BatchRejectedException.class, () -> telemetryService.acceptBatch(batch, PLAYER_ID));
     }
 
     @Test
     void testRejectEmptyEvents() {
         TelemetryBatchRequest batch = new TelemetryBatchRequest(1, List.of());
 
-        assertThrows(BatchRejectedException.class, () -> telemetryService.acceptBatch(batch));
+        assertThrows(BatchRejectedException.class, () -> telemetryService.acceptBatch(batch, PLAYER_ID));
     }
 
     @Test
@@ -55,7 +57,7 @@ class TelemetryServiceTest {
                 .toList();
         TelemetryBatchRequest batch = new TelemetryBatchRequest(1, events);
 
-        assertThrows(BatchRejectedException.class, () -> telemetryService.acceptBatch(batch));
+        assertThrows(BatchRejectedException.class, () -> telemetryService.acceptBatch(batch, PLAYER_ID));
     }
 
     @Test
@@ -68,7 +70,7 @@ class TelemetryServiceTest {
         TelemetryBatchRequest batch = new TelemetryBatchRequest(1, List.of(validEvent(), withoutId, partialCoordinates));
 
         InvalidEventsException exception = assertThrows(InvalidEventsException.class,
-                () -> telemetryService.acceptBatch(batch));
+                () -> telemetryService.acceptBatch(batch, PLAYER_ID));
         assertEquals(List.of(1, 2), exception.getInvalidEventIndices());
     }
 
@@ -76,9 +78,9 @@ class TelemetryServiceTest {
     void testPersistValidBatch() {
         TelemetryBatchRequest batch = new TelemetryBatchRequest(1, List.of(validEvent()));
 
-        telemetryService.acceptBatch(batch);
+        telemetryService.acceptBatch(batch, PLAYER_ID);
 
-        verify(repository).insertIgnore(eq(1), anyString());
+        verify(repository).insertIgnore(eq(1), anyString(), eq(PLAYER_ID.toString()));
     }
 
     private TelemetryEventPayload validEvent() {

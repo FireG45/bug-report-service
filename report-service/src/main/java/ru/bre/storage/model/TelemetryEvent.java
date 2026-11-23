@@ -45,6 +45,9 @@ public class TelemetryEvent {
     @Column(name = "installation_id", nullable = false)
     private UUID installationId;
 
+    @Column(name = "player_id")
+    private UUID playerId;
+
     @Column(name = "session_id", nullable = false)
     private UUID sessionId;
 

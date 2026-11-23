@@ -2,10 +2,14 @@ package ru.bre.storage.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.bre.storage.dto.SteamAuthRequest;
+import ru.bre.storage.exception.PlaytestAccessDeniedException;
+import ru.bre.storage.exception.SteamTicketRejectedException;
+import ru.bre.storage.exception.SteamUnavailableException;
 import ru.bre.storage.service.SteamAuthService;
 
 import java.util.Map;
@@ -27,15 +31,26 @@ public class SteamAuthController {
     public ResponseEntity<?> authenticate(
             @RequestBody(required = false) SteamAuthRequest request
     ) {
-        if (!steamAuthService.isStubEnabled()) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body(Map.of("error", "Steam auth is not configured"));
-        }
         String ticket = request == null ? null : request.getTicket();
         if (!isValidTicket(ticket)) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid ticket"));
         }
-        return ResponseEntity.ok(steamAuthService.issueToken());
+        return ResponseEntity.ok(steamAuthService.issueToken(ticket));
+    }
+
+    @ExceptionHandler(SteamTicketRejectedException.class)
+    public ResponseEntity<Map<String, Object>> handleTicketRejected(SteamTicketRejectedException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+    }
+
+    @ExceptionHandler(PlaytestAccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(PlaytestAccessDeniedException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+    }
+
+    @ExceptionHandler(SteamUnavailableException.class)
+    public ResponseEntity<Map<String, Object>> handleUnavailable(SteamUnavailableException e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", e.getMessage()));
     }
 
     private boolean isValidTicket(String ticket) {
