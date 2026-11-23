@@ -37,7 +37,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String ip = request.getRemoteAddr();
         String path = request.getRequestURI();
 
-        if (path.startsWith("/healthcheck")) {
+        if (path.startsWith("/healthcheck") || path.startsWith("/get-frontend-report")) {
             filterChain.doFilter(request, response);
             return;
         }
