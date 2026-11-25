@@ -27,6 +27,10 @@ spring:
 mail:
   from: ${EMAIL_USERNAME}@yandex.ru
 
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://www.mrak-bre.ru}
+
 telemetry:
   steam-auth:
     app-id: ${STEAM_APP_ID:5536570}

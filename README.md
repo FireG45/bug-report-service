@@ -27,9 +27,24 @@
 
 Report-service доступен на `http://localhost:8080`, фронтенд — на `http://localhost:3000`.
 
+Для локальной разработки профиль `local` разрешает CORS с `http://localhost:3000`
+(`SPRING_PROFILES_ACTIVE=local`); в проде origin задаётся через `CORS_ALLOWED_ORIGINS`.
+
+## Мониторинг
+
+`monitoring/healthcheck.sh` — долгоживущий процесс на хосте: проверяет readiness,
+ключевые URL, состояние контейнеров, диск, свежесть бэкапа БД и всплески 5xx/429/401
+в access-логе nginx, шлёт алерты в Telegram (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+из `.env`). Запуск через `monitoring/bug-report-monitor.service`.
+
+`monitoring/fail2ban/mrak-report-limit.*` — jail, который банит IP за повторные
+срабатывания `limit_req` nginx только в зоне `report` (`/api/report-send`), не задевая
+телеметрию игроков за общим NAT.
+
 ## Архитектура
 
-Фронтенд → `report-service` → SMTP-письмо с вложениями.
+Godot-клиент → `report-service` → SMTP-письмо с вложениями. Браузерная форма багрепорта
+оставлена для совместимости, но отключена (`/get-frontend-report` всегда `false`).
 
 ### Report Service
 

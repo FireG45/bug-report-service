@@ -1,0 +1,9 @@
+[mrak-report-limit]
+
+enabled = true
+filter = mrak-report-limit
+logpath = /var/log/nginx/error.log
+port = http,https
+maxretry = 10
+findtime = 10m
+bantime = 1h
