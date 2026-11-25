@@ -35,7 +35,8 @@ Report-service доступен на `http://localhost:8080`, фронтенд �
 `monitoring/healthcheck.sh` — долгоживущий процесс на хосте: проверяет readiness,
 ключевые URL, состояние контейнеров, диск, свежесть бэкапа БД и всплески 5xx/429/401
 в access-логе nginx, шлёт алерты в Telegram (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
-из `.env`). Запуск через `monitoring/bug-report-monitor.service`.
+из `.env`; `TELEGRAM_API_IP` — опциональный резолв api.telegram.org мимо DNS).
+Запуск через `monitoring/bug-report-monitor.service`.
 
 `monitoring/fail2ban/mrak-report-limit.*` — jail, который банит IP за повторные
 срабатывания `limit_req` nginx только в зоне `report` (`/api/report-send`), не задевая

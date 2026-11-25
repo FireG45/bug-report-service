@@ -10,6 +10,10 @@ CHECK_INTERVAL=$((CHECK_INTERVAL_MIN * 60))
 
 ACCESS_LOG="${ACCESS_LOG:-/var/log/nginx/access.log}"
 BACKUP_DIR="${BACKUP_DIR:-/root/backups/postgres}"
+
+# api.telegram.org resolves to 149.154.166.110 on this host; that DC is
+# blackholed by the provider, while 149.154.167.220 works. Empty = plain DNS.
+TELEGRAM_API_IP="${TELEGRAM_API_IP:-149.154.167.220}"
 BACKUP_MAX_AGE_MIN="${BACKUP_MAX_AGE_MIN:-1560}"   # 26h
 DISK_THRESHOLD="${DISK_THRESHOLD:-85}"
 METRICS_WINDOW_MIN="${METRICS_WINDOW_MIN:-5}"
@@ -45,15 +49,30 @@ BOT_TOKEN="$(read_env TELEGRAM_BOT_TOKEN)"
 CHAT_ID="$(read_env TELEGRAM_CHAT_ID)"
 
 send_telegram() {
-  local message="$1"
+  local message="$1" response
   if [ -z "$BOT_TOKEN" ] || [ -z "$CHAT_ID" ]; then
     echo "WARN: TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID not set, alert not sent"
     return
   fi
-  curl -s --max-time 10 -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+
+  local url="https://api.telegram.org/bot${BOT_TOKEN}/sendMessage"
+
+  if [ -n "$TELEGRAM_API_IP" ]; then
+    response=$(curl -sS --max-time 15 --resolve "api.telegram.org:443:${TELEGRAM_API_IP}" \
+      -X POST "$url" \
+      -d chat_id="${CHAT_ID}" \
+      --data-urlencode text="${message}" \
+      -d parse_mode="HTML" 2>&1)
+    if [[ "$response" == *'"ok":true'* ]]; then return 0; fi
+    echo "[$(date '+%F %T')] WARN: telegram via ${TELEGRAM_API_IP} failed: ${response:0:200}"
+  fi
+
+  response=$(curl -sS --max-time 15 -X POST "$url" \
     -d chat_id="${CHAT_ID}" \
     --data-urlencode text="${message}" \
-    -d parse_mode="HTML" > /dev/null 2>&1
+    -d parse_mode="HTML" 2>&1)
+  if [[ "$response" == *'"ok":true'* ]]; then return 0; fi
+  echo "[$(date '+%F %T')] WARN: telegram send failed: ${response:0:200}"
 }
 
 http_code() {
