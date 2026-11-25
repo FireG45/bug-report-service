@@ -7,6 +7,11 @@ services:
       - "127.0.0.1:3000:3000"
     env_file:
       - .env
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   postgres:
     image: postgres:16-alpine
@@ -25,10 +30,16 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   report-service:
     build: ./report-service
     container_name: report-service
+    restart: always
     ports:
       - "127.0.0.1:8080:8080"
     env_file:
@@ -45,6 +56,11 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   report-postgres-data:
