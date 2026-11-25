@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ReportService {
@@ -28,13 +29,13 @@ public class ReportService {
         this.mailSender = mailSender;
     }
 
-    public void report(ReportEntity reportEntity) {
+    public void report(ReportEntity reportEntity, UUID playerId) {
         List<File> tempFiles = new ArrayList<>();
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
 
-            enrichTextPart(reportEntity, messageHelper);
+            enrichTextPart(reportEntity, playerId, messageHelper);
             addAttachment(messageHelper, reportEntity.getImageFile(), "screenshot.png", tempFiles);
             addAttachment(messageHelper, reportEntity.getLogFile(), "logs.log", tempFiles);
 
@@ -58,10 +59,15 @@ public class ReportService {
         messageHelper.addAttachment(attachmentName, tempFile);
     }
 
-    private void enrichTextPart(ReportEntity reportEntity, MimeMessageHelper messageHelper) throws MessagingException {
+    private void enrichTextPart(ReportEntity reportEntity, UUID playerId, MimeMessageHelper messageHelper)
+            throws MessagingException {
         messageHelper.setFrom(from);
         messageHelper.setTo(from);
-        messageHelper.setSubject(sanitizeHeader(reportEntity.getTitle()) + " BUG REPORT " + new Date());
+        String subject = reportEntity.getTitle() + " BUG REPORT " + new Date();
+        if (playerId != null) {
+            subject = "[player:" + playerId + "] " + subject;
+        }
+        messageHelper.setSubject(sanitizeHeader(subject));
         messageHelper.setText(reportEntity.getText());
     }
 

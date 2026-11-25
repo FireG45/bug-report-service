@@ -31,6 +31,10 @@ app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:https://www.mrak-bre.ru}
 
+report:
+  require-auth: ${REPORT_REQUIRE_AUTH:true}
+  account-rate-limit-per-hour: ${REPORT_ACCOUNT_RATE_LIMIT_PER_HOUR:40}
+
 telemetry:
   steam-auth:
     app-id: ${STEAM_APP_ID:5536570}

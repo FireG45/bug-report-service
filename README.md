@@ -5,6 +5,9 @@
 ## Возможности
 
 * `POST /report-send` — баг-репорт: `title`, `text`, `imageFile` и опциональный `logFile`.
+  Требует `Authorization: Bearer` с токеном из `/telemetry/auth/steam`; без него — `401`,
+  при превышении лимита на аккаунт (по умолчанию 40 отчётов в час) — `429`. Анонимный приём
+  можно временно вернуть через `REPORT_REQUIRE_AUTH=false` (по умолчанию `true`).
 * `POST /telemetry/auth/steam` — обмен Steam-билета на Bearer-токен: проверка билета
   (`AuthenticateUserTicket`) и лицензии Playtest (`CheckAppOwnership`) через Steam Web API.
   Токен живёт 1 час, в БД хранится только его SHA-256 хеш.
@@ -23,6 +26,8 @@
 2. В корне этого репозитория скопируйте `.env.example` в `.env` и заполните `EMAIL_USERNAME`,
    `EMAIL_PASSWORD` (SMTP Яндекса) и `STEAM_PUBLISHER_KEY` (Publisher Web API Key
    с доступом к AppID плейтеста; хранится только на сервере). Без ключа обмен билетов отвечает `503`.
+   Для отчётов без Steam-токена (локальная отладка формы) выставьте `REPORT_REQUIRE_AUTH=false`,
+   лимит на аккаунт задаётся `REPORT_ACCOUNT_RATE_LIMIT_PER_HOUR`.
 3. Запустите `docker compose up --build` из корня репозитория.
 
 Report-service доступен на `http://localhost:8080`, фронтенд — на `http://localhost:3000`.

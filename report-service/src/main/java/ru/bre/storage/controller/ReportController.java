@@ -1,5 +1,6 @@
 package ru.bre.storage.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,8 +8,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import ru.bre.storage.config.ReportAuthFilter;
 import ru.bre.storage.dto.ReportEntity;
 import ru.bre.storage.service.ReportService;
+
+import java.util.UUID;
 
 @RestController
 public class ReportController {
@@ -29,7 +33,8 @@ public class ReportController {
             @RequestParam("title") String title,
             @RequestParam("text") String text,
             @RequestParam("imageFile") MultipartFile imageFile,
-            @RequestParam(value = "logFile", required = false) MultipartFile logFile
+            @RequestParam(value = "logFile", required = false) MultipartFile logFile,
+            HttpServletRequest request
     ) {
         if (title.isBlank() || title.length() > MAX_TITLE_LENGTH) {
             return ResponseEntity.badRequest().body("Invalid title");
@@ -43,7 +48,8 @@ public class ReportController {
         if (logFile != null && logFile.getSize() > MAX_LOG_BYTES) {
             return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("Log file is too large");
         }
-        reportService.report(new ReportEntity(title, text, imageFile, logFile));
+        UUID playerId = (UUID) request.getAttribute(ReportAuthFilter.PLAYER_ID_ATTRIBUTE);
+        reportService.report(new ReportEntity(title, text, imageFile, logFile), playerId);
         return ResponseEntity.ok("OK!");
     }
 
