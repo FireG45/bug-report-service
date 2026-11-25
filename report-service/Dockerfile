@@ -1,11 +1,11 @@
-FROM eclipse-temurin:21-alpine@sha256:c07bb82e004a166b5d3d63b84ad70e2e822f228505e2e0c0b8dfdc2890d22f13 as builder
+FROM eclipse-temurin:25-alpine@sha256:22edbb1021420ae6e248519d1af07577742314d67d4c60fcbb2e285b7e47fa78 as builder
 WORKDIR /app
 COPY .mvn .mvn
 COPY mvnw pom.xml ./
 COPY src ./src
 RUN chmod +x mvnw && ./mvnw clean install
 
-FROM eclipse-temurin:21-alpine@sha256:c07bb82e004a166b5d3d63b84ad70e2e822f228505e2e0c0b8dfdc2890d22f13
+FROM eclipse-temurin:25-alpine@sha256:22edbb1021420ae6e248519d1af07577742314d67d4c60fcbb2e285b7e47fa78
 WORKDIR /app
 RUN addgroup -S app && adduser -S -G app app
 COPY --from=builder /app/target/*.jar /app/*.jar
